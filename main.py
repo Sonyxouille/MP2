@@ -6,20 +6,22 @@ class Player:
         self.y = y
 
     def update(self):
-        pass
+        self.x = (self.x + 1) % pyxel.width
 
     def draw(self):
-        pass
+        pyxel.rect(self.x, 0, 8, 8, 9)
 
 class App:
     def __init__(self):
         pyxel.init(160,120)
-        self.x = 0
+        self.player = Player(50,50)
         pyxel.run(self.update, self.draw)
 
     def update(self):
-        self.x = (self.x + 1) % pyxel.width
+        self.player.update()
 
     def draw(self):
         pyxel.cls(0)
-        pyxel.rect(self.x, 0, 8, 8, 9)
+        self.player.draw()
+
+App()
