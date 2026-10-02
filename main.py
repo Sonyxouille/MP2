@@ -1,7 +1,14 @@
 import pyxel
 
 class Player:
-    def __init__(self):
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
+    def update(self):
+        pass
+
+    def draw(self):
         pass
 
 class App:
