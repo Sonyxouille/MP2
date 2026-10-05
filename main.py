@@ -18,7 +18,7 @@ class Player:
             self.y += self.vy
 
     def draw(self):
-        pyxel.blt(self.x,self.y,0,0,0,8,8)
+        pyxel.blt(self.x,self.y,0,0,8,8,8)
 
 class App:
     def __init__(self):
