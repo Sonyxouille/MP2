@@ -4,31 +4,18 @@ class Player:
     def __init__(self,x,y):
         self.x = x
         self.y = y
-
-    def droite(self):
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            self.x += 1
-
-    def gauche(self):
-        if pyxel.btn(pyxel.KEY_LEFT):
-            self.x -= 1
-
-    def monter(self):
-        if pyxel.btn(pyxel.KEY_UP):
-            self.y -= 1
-
-    def descendre(self):
-        if pyxel.btn(pyxel.KEY_DOWN):
-            self.y += 1
-
-    def mouvement(self):
-        self.monter()
-        self.descendre()
-        self.gauche()
-        self.droite()
+        self.vx = 1
+        self.vy = 1
 
     def update(self):
-        self.mouvement()
+        if pyxel.btn(pyxel.KEY_RIGHT):
+            self.x += self.vx
+        if pyxel.btn(pyxel.KEY_LEFT):
+            self.x -= self.vx
+        if pyxel.btn(pyxel.KEY_UP):
+            self.y -= self.vy
+        if pyxel.btn(pyxel.KEY_DOWN):
+            self.y += self.vy
 
     def draw(self):
         pyxel.blt(self.x,self.y,0,0,0,8,8)
