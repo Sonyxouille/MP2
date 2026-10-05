@@ -38,7 +38,7 @@ class App:
         pyxel.init(160,120, title="")
         self.player = Player(50,50)
         pyxel.run(self.update, self.draw)
-        pyxel.load("player.pyxres")
+        pyxel.load("1.pyxres")
 
     def update(self):
         self.player.update()
