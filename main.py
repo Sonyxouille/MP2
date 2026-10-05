@@ -44,7 +44,7 @@ class App:
         self.player.update()
 
     def draw(self):
-        pyxel.cls(0)
+        pyxel.cls(1)
         self.player.draw()
 
 App()
