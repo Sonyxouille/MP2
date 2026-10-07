@@ -6,6 +6,7 @@ class Player:
         self.y = y
         self.vx = 1
         self.vy = 1
+        
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
