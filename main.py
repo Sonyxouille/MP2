@@ -25,11 +25,7 @@ TILE_22 = (6,7)
 TILE_23 = (7,7)
 TILE_24 = (1,0)
 
-
-
 SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24 ]
-
-
 
 class Player:
     def __init__(self,x,y):
@@ -40,6 +36,18 @@ class Player:
         self.f = 8
         self.mouvement = False
 
+    def get_tile(self,x,y):
+        tile_x = x//8
+        tile_y = y//8
+        return pyxel.tilemaps[0].pget(tile_x,tile_y)
+
+    def tile(self):
+        
+        tile_under_left = self.get_tile(self.x + 2, self.y + 8)
+        tile_under_right = get_tile(player["x"] + 6, player["y"] + 8)
+        tile_under_middle = get_tile(player["x"] + 4, player["y"] + 10)
+        tile_right = get_tile(player["x"] + 8, player["y"] + 6)
+        tile_left = get_tile(player["x"] - 1, player["y"] + 6)
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
