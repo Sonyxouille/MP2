@@ -6,12 +6,16 @@ class Player:
         self.y = y
         self.vx = 1
         self.vy = 1
-        
+        self.f = 8
+        self.mouvement = False
+
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
+            self.f = 8
             self.x += self.vx
         if pyxel.btn(pyxel.KEY_LEFT):
+            self.f = -8
             self.x -= self.vx
         if pyxel.btn(pyxel.KEY_UP):
             self.y -= self.vy
@@ -20,13 +24,13 @@ class Player:
 
     def draw(self):
         if (pyxel.frame_count // 5) % 2 == 0:
-            pyxel.blt(self.x,self.y,0,0,16,8,8,2)
+            pyxel.blt(self.x,self.y,0,0,16,self.f,8,2)
         else:
-            pyxel.blt(self.x,self.y,0,8,16,8,8,2)
+            pyxel.blt(self.x,self.y,0,8,16,self.f,8,2)
 
 class App:
     def __init__(self):
-        pyxel.init(160, 120, title="LE JEU DE LA MORT QUI TUE")
+        pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
         pyxel.load("1.pyxres")
         self.player = Player(50, 50)
         pyxel.run(self.update, self.draw)
