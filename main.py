@@ -42,12 +42,11 @@ class Player:
         return pyxel.tilemaps[0].pget(tile_x,tile_y)
 
     def tile(self):
-        
         tile_under_left = self.get_tile(self.x + 2, self.y + 8)
-        tile_under_right = get_tile(player["x"] + 6, player["y"] + 8)
-        tile_under_middle = get_tile(player["x"] + 4, player["y"] + 10)
-        tile_right = get_tile(player["x"] + 8, player["y"] + 6)
-        tile_left = get_tile(player["x"] - 1, player["y"] + 6)
+        tile_under_right = self.get_tile(self.x + 6, self.y + 8)
+        tile_under_middle = self.get_tile(self.x + 4, self.y + 10)
+        tile_right = self.get_tile(self.x + 8, self.y + 6)
+        tile_left = self.get_tile(self.x - 1, self.y + 6)
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
