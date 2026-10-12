@@ -24,6 +24,7 @@ TILE_21 = (7,6)
 TILE_22 = (6,7)
 TILE_23 = (7,7)
 TILE_24 = (1,0)
+TILE_25 = (5,1)
 
 SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24 ]
 
@@ -35,6 +36,8 @@ class Player:
         self.vy = 2
         self.f = 8
         self.mouvement = False
+        self.physics = Physics()
+        self.is_on_the_ground = False
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
@@ -43,10 +46,20 @@ class Player:
         if pyxel.btn(pyxel.KEY_LEFT):
             self.f = -8
             self.x -= self.vx
-        if pyxel.btn(pyxel.KEY_UP):
+        """if pyxel.btn(pyxel.KEY_UP):
             self.y -= self.vy
         if pyxel.btn(pyxel.KEY_DOWN):
-            self.y += self.vy
+            self.y += self.vy"""
+
+        self.vy += self.physics.gravity
+        self.y += self.vy
+
+        if self.physics.is_on_floor(self.x ,self.y):
+            self.is_on_the_ground = True
+            self.y -= self.vy
+            self.vy = 0
+        else:
+            self.is_on_the_ground = False
 
     def draw(self):
         if (pyxel.frame_count // 5) % 2 == 0:
@@ -100,6 +113,6 @@ class App:
         self.player.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         tile_x ,tile_y = self.physics.get_tile(self.player.x, self.player.y)
-        pyxel.text(20,20,f"tile x,y : {tile_x,tile_y}",9)
-
+        pyxel.text(10,20,f"tile x,y : {tile_x,tile_y}",9)
+        pyxel.text(10,30,f"on floor : {self.physics.is_on_floor(self.player.x,self.player.y)}",9)
 App()
