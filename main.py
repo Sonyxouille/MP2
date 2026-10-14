@@ -38,6 +38,7 @@ class Player:
         self.mouvement = False
         self.physics = Physics()
         self.is_on_the_ground = False
+        self.jump_force = 6
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
@@ -46,18 +47,18 @@ class Player:
         if pyxel.btn(pyxel.KEY_LEFT):
             self.f = -8
             self.x -= self.vx
-        """if pyxel.btn(pyxel.KEY_UP):
-            self.y -= self.vy
-        if pyxel.btn(pyxel.KEY_DOWN):
-            self.y += self.vy"""
+
+        if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
+            self.is_on_the_ground = False
+            self.vy -= self.jump_force
 
         self.vy += self.physics.gravity
         self.y += self.vy
 
         if self.physics.is_on_floor(self.x ,self.y):
             self.is_on_the_ground = True
-            self.y -= self.vy
             self.vy = 0
+            self.y = self.physics.get_tile_y(self.y)
         else:
             self.is_on_the_ground = False
 
@@ -86,15 +87,10 @@ class Physics:
         else:
             return False
 
-
-    """def tile(self):
-        tile_under_left = self.get_tile(self.x + 2, self.y + 8)
-        tile_under_right = self.get_tile(self.x + 6, self.y + 8)
-        tile_under_middle = self.get_tile(self.x + 4, self.y + 10)
-        tile_right = self.get_tile(self.x + 8, self.y + 6)
-        tile_left = self.get_tile(self.x - 1, self.y + 6)
-        tile_up = self.get_tile(self.x + 4, self.y - 1)"""
-
+    def get_tile_y(self,y):
+        tile_y =(y+8) // 8
+        floor_y = tile_y * 8
+        return floor_y - 8
 
 class App:
     def __init__(self):
