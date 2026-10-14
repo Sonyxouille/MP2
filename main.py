@@ -28,6 +28,9 @@ TILE_25 = (5,1)
 
 SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24 ]
 
+scroll_x = 0
+SCROLL_BORDER = 64
+
 class Player:
     def __init__(self,x,y):
         self.x = x
@@ -63,10 +66,13 @@ class Player:
             self.is_on_the_ground = False
 
     def draw(self):
+        screen_x = self.x - scroll_x
         if (pyxel.frame_count // 5) % 2 == 0:
-            pyxel.blt(self.x,self.y,0,0,16,self.f,8,2)
+            pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
         else:
-            pyxel.blt(self.x,self.y,0,8,16,self.f,8,2)
+            pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
+        pyxel.rect(self.x + 8 - scroll_x, self.y + 8,1,1,9)
+        pyxel.rect(self.x - scroll_x, self.y + 8,1,1,9)
 
 class Physics:
     def __init__(self):
@@ -96,16 +102,20 @@ class App:
     def __init__(self):
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
         pyxel.load("1.pyxres")
+        self.map_whidth = 2040
         self.physics = Physics()
         self.player = Player(50, 50)
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        global scroll_x
+        scroll_x = self.player.x - SCROLL_BORDER
+        scroll_x = max(0,min(scroll_x,self.map_whidth-128))
         self.player.update()
 
     def draw(self):
         pyxel.cls(1)
-        pyxel.bltm(0,0,0,0,0,256,256)
+        pyxel.bltm(0,0,0,scroll_x,0,256,256)
         self.player.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         tile_x ,tile_y = self.physics.get_tile(self.player.x, self.player.y)
