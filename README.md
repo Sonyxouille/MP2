@@ -1,3 +1,5 @@
+# Super Zboobi
+
 ## Story
 RAVUUUS est mort (le boss de la team Brather)
 Le nouveau chef de la team Brather est TheKairi69
@@ -15,7 +17,7 @@ Vaincre les ennemis, atteindre le boss de la Grotte et sauver Khalamyto
 - detecter les tuiles
 - collisions avec les murs
 - ennemi(s)
-- but(s) du jeu
+- musique
 - originalité : easter egg, menu, utiliser plusieurs map, TILED (permet de faire des maps)
 
 Notes :
@@ -35,3 +37,23 @@ Fin en mode Flappy Bird après avoir butté le boss car grotte s'éffondre
 Team Brather (méchant)
 Zboobi (héros)
 Khalamytho (pote du héros/victime)
+
+## Répartition
+
+### Clément
+- Design/Graphisme (Les différentes maps (Map de base, Map de grotte, Map de grotte éboulement), 
+  les entités (Zboobi (avec et sans ailes), Khalamyto(attaché, pas attaché puis dans le sac de Zboobi)),
+  les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
+- Musique
+- Vies
+- Attaques
+- Trouver idées easter egg
+- Menu (à faire à la fin)
+
+### Gaëtan
+- Collisions
+- Détecter les tuiles
+- Ennemis
+- Boss
+- Coder easter egg
+- Faire changement de map
