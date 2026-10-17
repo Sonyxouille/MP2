@@ -33,6 +33,8 @@ SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TI
 scroll_x = 0
 SCROLL_BORDER = 64
 
+enemies = []
+
 class Player:
     def __init__(self,x,y):
         self.x = x
@@ -86,6 +88,11 @@ class Player:
             self.vy = 0
             self.y += 1
 
+        for enemy in enemies:
+            if enemy.check_collision(self.x, self.y, self.vy) == True:
+                self.vy = -self.jump_force
+                enemy.take_damage(self.vy)
+
     def draw(self):
         screen_x = self.x - scroll_x
         if (pyxel.frame_count // 5) % 2 == 0:
@@ -111,10 +118,19 @@ class Enemy:
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
 
-    def take_damage(self):
-        self.hp -= 10
-        if self.hp <= 0:
-            self.hp = 0
+    def take_damage(self,vy):
+        if vy < 0:
+            self.hp -= 10 * -vy // 2
+        elif vy > 0:
+            self.hp -= 10 * vy // 2
+        print(f"Enemy HP: {self.hp}, VY: {vy // 2}")
+
+    def check_collision(self,x,y,vy):
+        if (x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y) and self.hp > 0:
+            if vy > 0 and y + 8 <= self.y + 4:
+                return True
+            else:
+                return False
 
     def update(self):
         if self.direction == False:
@@ -128,7 +144,7 @@ class Enemy:
             self.direction = True
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
-            self.take_damage()
+
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
     def draw(self):
@@ -210,7 +226,7 @@ class App:
         self.map_whidth = 2040
         self.physics = Physics()
         self.player = Player(50, 50)
-        self.enemy1 = Enemy(10, 112,500)
+        enemies.append(Enemy(10, 112, 100))
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -218,13 +234,15 @@ class App:
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0,min(scroll_x,self.map_whidth-128))
         self.player.update()
-        self.enemy1.update()
+        for enemy in enemies:
+            enemy.update()
 
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,0,256,256)
         self.player.draw()
-        self.enemy1.draw()
+        for enemy in enemies:
+            enemy.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         tile_x ,tile_y = self.physics.get_tile(self.player.x, self.player.y)
         pyxel.text(10,20,f"tile x,y : {tile_x,tile_y}",9)
