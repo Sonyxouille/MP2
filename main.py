@@ -54,7 +54,6 @@ class Player:
         if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False:
             self.f = -8
             self.x -= self.vx
-
         if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
             self.is_on_the_ground = False
             self.vy -= self.jump_force
@@ -62,10 +61,8 @@ class Player:
         self.vy += self.physics.gravity
         self.y += self.vy
 
-        if self.physics.is_on_floor(self.x+1, self.y) and self.vy >= 0 and self.f == - 8:
-            self.is_on_the_ground = True
-            self.vy = 0
-            self.y = self.physics.get_tile_y(self.y)
+        if self.physics.is_on_floor(self.x, self.y) and (self.physics.get_tile(self.x + 2, self.y + 8) == TILE_PLATFORM or self.physics.get_tile(self.x + 4, self.y + 8) == TILE_PLATFORM) and pyxel.btn(pyxel.KEY_DOWN):
+            self.is_on_the_ground = False
         elif self.physics.is_on_floor(self.x, self.y) and self.vy >= 0:
             self.is_on_the_ground = True
             self.vy = 0
@@ -83,16 +80,25 @@ class Player:
         else:
             self.touch_a_right_wall = False
 
+        if self.physics.touch_a_ceiling(self.x, self.y) and self.vy < 0:
+            self.vy = 0
+            self.y += 1
+        elif self.y < 1:
+            self.vy = 0
+            self.y += 1
+
     def draw(self):
         screen_x = self.x - scroll_x
         if (pyxel.frame_count // 5) % 2 == 0:
             pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
         else:
             pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
-        pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
-        pyxel.rect(self.x + 3 - scroll_x, self.y + 8,1,1,9)
-        pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
-        pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
+        pyxel.rect(self.x + 2 - scroll_x, self.y - 1,1,1,9)
+        pyxel.rect(self.x + 4 - scroll_x, self.y - 1,1,1,9)
+        #pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
+        #pyxel.rect(self.x + 3 - scroll_x, self.y + 8,1,1,9)
+        #pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
+        #pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
 class Physics:
     def __init__(self):
@@ -101,8 +107,6 @@ class Physics:
     def get_tile(self,x,y):
         tile_x = x//8
         tile_y = y//8
-        if tile_x < 0 or tile_y < 0:
-            return (0,0)
         return pyxel.tilemaps[0].pget(tile_x,tile_y)
     
     def is_on_floor(self,x,y):
@@ -115,14 +119,24 @@ class Physics:
 
     def touch_a_left_wall(self,x,y):
         tile_left = self.get_tile(x-1,y)
-        if tile_left in SOLID_TILE and not tile_left in TILE_PLATFORM:
+        if tile_left in SOLID_TILE and not tile_left == TILE_PLATFORM:
             return True
         else:
             return False
 
     def touch_a_right_wall(self,x,y):
         tile_right = self.get_tile(x+9,y)
-        if tile_right in SOLID_TILE and not tile_right in TILE_PLATFORM:
+        if tile_right in SOLID_TILE and not tile_right == TILE_PLATFORM:
+            return True
+        else:
+            return False
+    
+    def touch_a_ceiling(self,x,y):
+        tile_left = self.get_tile(x + 2, y - 1)
+        tile_right = self.get_tile(x + 4, y - 1)
+        if tile_left == TILE_PLATFORM or tile_right == TILE_PLATFORM:
+            return False
+        elif tile_left in SOLID_TILE or tile_right in SOLID_TILE:
             return True
         else:
             return False
