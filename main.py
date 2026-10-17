@@ -46,6 +46,7 @@ class Player:
         self.touch_a_left_wall = False
         self.touch_a_right_wall = False
         self.jump_force = 6
+        self.key_down = 0
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
@@ -61,9 +62,11 @@ class Player:
         self.vy += self.physics.gravity
         self.y += self.vy
 
-        if self.physics.is_on_floor(self.x, self.y) and (self.physics.get_tile(self.x + 2, self.y + 8) == TILE_PLATFORM or self.physics.get_tile(self.x + 4, self.y + 8) == TILE_PLATFORM) and pyxel.btn(pyxel.KEY_DOWN):
+        if self.physics.is_on_floor(self.x, self.y) and (self.physics.get_tile(self.x + 2, self.y + 8) == TILE_PLATFORM or self.physics.get_tile(self.x + 4, self.y + 8) == TILE_PLATFORM) and pyxel.btnp(pyxel.KEY_DOWN):
             self.is_on_the_ground = False
-        elif self.physics.is_on_floor(self.x, self.y) and self.vy >= 0:
+            self.key_down = time.time()
+        elif self.physics.is_on_floor(self.x, self.y) and self.vy >= 0 and (time.time() - self.key_down) > 0.2:
+            print(time.time() - self.key_down)
             self.is_on_the_ground = True
             self.vy = 0
             self.y = self.physics.get_tile_y(self.y)
@@ -80,10 +83,7 @@ class Player:
         else:
             self.touch_a_right_wall = False
 
-        if self.physics.touch_a_ceiling(self.x, self.y) and self.vy < 0:
-            self.vy = 0
-            self.y += 1
-        elif self.y < 1:
+        if self.physics.touch_a_ceiling(self.x, self.y):
             self.vy = 0
             self.y += 1
 
