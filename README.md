@@ -53,7 +53,7 @@ Khalamytho (pote du héros/victime)
 ### Gaëtan
 - Collisions avec maps (1ere map faite)
 - Collisions avec ennemis
-- Détecter les tuiles
+- Détecter les tuiles (good aussi normalement)
 - Ennemis
 - Boss
 - Coder easter egg

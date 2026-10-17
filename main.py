@@ -100,6 +100,16 @@ class Player:
         #pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
         #pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
+class Enemy:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.direction = False #False pour gauche, True pour droite
+        self.vx = 1
+        self.hp = 100 #HP temporaire
+
+        
+
 class Physics:
     def __init__(self):
         self.gravity = 0.5
