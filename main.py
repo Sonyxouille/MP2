@@ -142,10 +142,10 @@ class Player:
         #pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
 class Enemy:
-    def __init__(self,x,y,hp):
+    def __init__(self,x,y,hp,vx=1):
         self.x = x
         self.y = y
-        self.vx = 1
+        self.vx = vx
         self.f = 8
         self.hp = hp
         self.max_hp = self.hp
@@ -256,13 +256,16 @@ class Physics:
 
 class Creatif:
     def __init__(self):
+        self.active = False
         self.selectionne = 0
-        self.choix_stat = 0
         self.choix_menu = 0
         self.page = "menu"
-        self.active = False
-        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1)]
         self.options = ["Modifier le perso", "Placer un ennemi", "Modifier les tiles"]
+        self.choix_stat = 0
+        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1)]
+        self.choix_stat_ennemi = 0
+        self.stats_ennemi = [("hp", 10), ("vx", 1)]
+        self.valeurs_ennemi = {"hp": 100, "vx": 1}
 
     def on_off(self):
         self.active = not self.active
@@ -306,10 +309,35 @@ class Creatif:
             pyxel.text(20, 38 + i * 10, f"{stat[0]} : {getattr(player, stat[0])}", couleur)
 
     def update_ennemi(self):
-        pass
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.choix_stat_ennemi = (self.choix_stat_ennemi + 1) % len(self.stats_ennemi)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.choix_stat_ennemi = (self.choix_stat_ennemi - 1) % len(self.stats_ennemi)
+
+        variable, pas = self.stats_ennemi[self.choix_stat_ennemi]
+        if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
+            self.valeurs_ennemi[variable] += pas
+        if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
+            self.valeurs_ennemi[variable] = max(1, self.valeurs_ennemi[variable] - pas)
+
+        pos_x = (pyxel.mouse_x + scroll_x) // 8
+        pos_y = pyxel.mouse_y // 8
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            enemies.append(Enemy(pos_x * 8, pos_y * 8, self.valeurs_ennemi["hp"], self.valeurs_ennemi["vx"]))
 
     def draw_ennemi(self):
-        pass
+        pos_x = (pyxel.mouse_x + scroll_x) // 8
+        pos_y = pyxel.mouse_y // 8
+        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8, 8, 8, 10)
+
+        pyxel.rect(14, 30, 100, 30, 0)
+        pyxel.rectb(14, 30, 100, 30, 10)
+        for i, stat in enumerate(self.stats_ennemi):
+            if i == self.choix_stat_ennemi:
+                couleur = 10
+            else:
+                couleur = 7
+            pyxel.text(20, 38 + i * 10, f"{stat[0]} : {self.valeurs_ennemi[stat[0]]}", couleur)
 
     def update_menu(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
@@ -405,6 +433,7 @@ class App:
                 self.creatif.draw_tiles()
             elif self.creatif.page == "perso":
                 self.creatif.draw_perso(self.player)
-
+            elif self.creatif.page == "ennemi":
+                self.creatif.draw_ennemi()
 
 App()
