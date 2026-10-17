@@ -338,7 +338,6 @@ class Creatif:
             else:
                 couleur = 7
             pyxel.text(20, 38 + i * 10, f"{stat[0]} : {self.valeurs_ennemi[stat[0]]}", couleur)
-            #test
 
     def update_menu(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
