@@ -1,11 +1,11 @@
 import time
 import pyxel
 
-TILE_1 = (4,1)
-TILE_2 = (5,0)
-TILE_3 = (5,8)
-TILE_4 = (6,0)
-TILE_5 = (7,0)
+TILE_1 = (5,0)
+TILE_2 = (6,0)
+TILE_3 = (7,0)
+TILE_4 = (4,1)
+TILE_5 = (5,1)
 TILE_6 = (6,1)
 TILE_7 = (7,1)
 TILE_8 = (5,2)
@@ -24,12 +24,12 @@ TILE_20 = (6,6)
 TILE_21 = (7,6)
 TILE_22 = (6,7)
 TILE_23 = (7,7)
-TILE_24 = (5,1)
 
 TILE_PLATFORM = (1,0)
 
-SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24, TILE_PLATFORM ]
-
+SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7,
+              TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15,
+              TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23]
 scroll_x = 0
 SCROLL_BORDER = 64
 
@@ -49,7 +49,6 @@ class Player:
         self.max_hp = 100
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
-        self.mouvement = False
         self.is_on_the_ground = False
         self.touch_a_left_wall = False
         self.touch_a_right_wall = False
@@ -255,32 +254,157 @@ class Physics:
         floor_y = tile_y * 8
         return floor_y - 8
 
+class Creatif:
+    def __init__(self):
+        self.selectionne = 0
+        self.choix_stat = 0
+        self.choix_menu = 0
+        self.page = "menu"
+        self.active = False
+        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1)]
+        self.options = ["Modifier le perso", "Placer un ennemi", "Modifier les tiles"]
+
+    def on_off(self):
+        self.active = not self.active
+        self.page = "menu"
+        pyxel.mouse(self.active)
+
+    def update(self, player):
+        if pyxel.btnp(pyxel.KEY_TAB):
+            self.page = "menu"
+        if self.page == "menu":
+            self.update_menu()
+        elif self.page == "tiles":
+            self.update_tiles(player)
+        elif self.page == "perso":
+            self.update_perso(player)
+        elif self.page == "ennemi":
+            self.update_ennemi()
+
+    def update_perso(self, player):
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.choix_stat = (self.choix_stat + 1) % len(self.stats_perso)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.choix_stat = (self.choix_stat - 1) % len(self.stats_perso)
+
+        variable, pas = self.stats_perso[self.choix_stat]
+        if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
+            setattr(player, variable, getattr(player, variable) + pas)
+        if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
+            setattr(player, variable, max(0, getattr(player, variable) - pas))
+        player.hp = max(1,min(player.hp, player.max_hp))
+        player.max_hp = max(1,player.max_hp)
+
+    def draw_perso(self, player):
+        pyxel.rect(14, 30, 100, 60, 0)
+        pyxel.rectb(14, 30, 100, 60, 10)
+        for i, stat in enumerate(self.stats_perso):
+            if i == self.choix_stat:
+                couleur = 10
+            else:
+                couleur = 7
+            pyxel.text(20, 38 + i * 10, f"{stat[0]} : {getattr(player, stat[0])}", couleur)
+
+    def update_ennemi(self):
+        pass
+
+    def draw_ennemi(self):
+        pass
+
+    def update_menu(self):
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.choix_menu = (self.choix_menu + 1) % len(self.options)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.choix_menu = (self.choix_menu - 1) % len(self.options)
+        if pyxel.btnp(pyxel.KEY_RETURN):
+            self.page = ["perso", "ennemi", "tiles"][self.choix_menu]
+
+    def draw_menu(self):
+        pyxel.rect(14, 30, 100, 50, 0)
+        pyxel.rectb(14, 30, 100, 50, 10)
+        for i, texte in enumerate(self.options):
+            if i == self.choix_menu:
+                couleur = 10
+            else:
+                couleur = 7
+            if i == self.choix_menu:
+                prefixe = "> "
+            else:
+                prefixe = "  "
+            pyxel.text(20, 38 + i * 12, prefixe + texte, couleur)
+
+    def update_tiles(self,player):
+        if pyxel.btn(pyxel.KEY_RIGHT): 
+            player.x += 3
+        if pyxel.btn(pyxel.KEY_LEFT) and player.x > 0: 
+            player.x -= 3
+        if pyxel.btn(pyxel.KEY_UP): 
+            player.y -= 3
+        if pyxel.btn(pyxel.KEY_DOWN): 
+            player.y += 3
+        player.vy = 0
+        self.selectionne = (self.selectionne + pyxel.mouse_wheel) % len(SOLID_TILE)
+
+        pos_x = (pyxel.mouse_x + scroll_x) // 8
+        pos_y = pyxel.mouse_y // 8
+        if pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
+            pyxel.tilemaps[0].pset(pos_x, pos_y, SOLID_TILE[self.selectionne])
+        elif pyxel.btn(pyxel.MOUSE_BUTTON_RIGHT):
+            pyxel.tilemaps[0].pset(pos_x, pos_y, (0,0))
+
+    def draw_tiles(self):
+        pos_x = (pyxel.mouse_x + scroll_x) // 8
+        pos_y = pyxel.mouse_y // 8
+        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8, 8, 8, 10)
+
+        tile = SOLID_TILE[self.selectionne]
+        u = tile[0] * 8
+        v = tile[1] * 8
+
+        pyxel.rect(108, 4, 12, 12, 0)
+        pyxel.rectb(108, 4, 12, 12, 10)
+        pyxel.blt(110, 6, 0, u, v, 8, 8)
+
+        pyxel.text(10, 30, f"Tile : {tile}", 10)
+
 class App:
     def __init__(self):
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
         pyxel.load("1.pyxres")
-        self.map_whidth = 2040
-        self.physics = Physics()
+        self.map_width = 2040
         self.player = Player(50, 50)
+        self.creatif = Creatif()
         enemies.append(Enemy(10, 112, 100))
         pyxel.run(self.update, self.draw)
 
     def update(self):
         global scroll_x
+        if pyxel.btnp(pyxel.KEY_F1):
+            self.creatif.on_off()
+        if self.creatif.active:
+            self.creatif.update(self.player)
+        else:
+            self.player.update()
+            for enemy in enemies:
+                enemy.update()
         scroll_x = self.player.x - SCROLL_BORDER
-        scroll_x = max(0,min(scroll_x,self.map_whidth-128))
-        self.player.update()
-        for enemy in enemies:
-            enemy.update()
+        scroll_x = max(0,min(scroll_x,self.map_width-128))
 
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,0,256,256)
-        self.player.draw()
         for enemy in enemies:
             enemy.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
-        pyxel.text(10,20,f"Invincible : {self.player.invincible}",9)
+        self.player.healthbar.update(self.player.x, self.player.y, self.player.max_hp, self.player.hp)
+        self.player.draw()
+        if self.creatif.active:
+            if self.creatif.page == "menu":
+                self.creatif.draw_menu()
+            elif self.creatif.page == "tiles":
+                self.creatif.draw_tiles()
+            elif self.creatif.page == "perso":
+                self.creatif.draw_perso(self.player)
 
 
 App()
