@@ -42,7 +42,7 @@ Khalamytho (pote du héros/victime)
 
 ### Clément
 - Design/Graphisme (Les différentes maps (Map de base, Map de grotte, Map de grotte éboulement), 
-  les entités (Zboobi (avec et sans ailes), Khalamyto(attaché, pas attaché puis dans le sac de Zboobi)),
+  les entités (Zboobi (avec et sans ailes), Khalamyto (attaché, pas attaché puis dans le sac de Zboobi)),
   les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
 - Musique
 - Attaques
@@ -58,3 +58,4 @@ Khalamytho (pote du héros/victime)
 - Boss
 - Coder easter egg
 - Faire changement de map
+- Créatif mode
