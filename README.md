@@ -45,7 +45,6 @@ Khalamytho (pote du héros/victime)
   les entités (Zboobi (avec et sans ailes), Khalamyto(attaché, pas attaché puis dans le sac de Zboobi)),
   les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
 - Musique
-- Vies
 - Attaques
 - Trouver idées easter egg
 - Menu (à faire à la fin)
@@ -54,8 +53,8 @@ Khalamytho (pote du héros/victime)
 - Collisions avec maps (1ere map faite)
 - Collisions avec ennemis
 - Détecter les tuiles (good aussi normalement)
+- Vie
 - Ennemis
 - Boss
 - Coder easter egg
 - Faire changement de map
-- Scroll_Y ou changement juste quand on change de map (à voir)

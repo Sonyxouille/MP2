@@ -42,13 +42,26 @@ class Player:
         self.vx = 2
         self.vy = 2
         self.f = 8
-        self.mouvement = False
+        self.jump_force = 6
+        self.key_down = 0
+        self.time_invincible = 0
+        self.hp = 100
+        self.max_hp = 100
         self.physics = Physics()
+        self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
+        self.mouvement = False
         self.is_on_the_ground = False
         self.touch_a_left_wall = False
         self.touch_a_right_wall = False
-        self.jump_force = 6
-        self.key_down = 0
+        self.invincible = False
+
+    def invincible_timer(self):
+        self.invincible = True
+        return time.time()
+
+    def take_damage(self):
+        self.hp -= 10
+        self.vy -= self.jump_force
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
@@ -89,16 +102,39 @@ class Player:
             self.y += 1
 
         for enemy in enemies:
-            if enemy.check_collision(self.x, self.y, self.vy) == True:
-                self.vy = -self.jump_force
-                enemy.take_damage(self.vy)
+            #if self.invincible == False:
+                if enemy.check_collision(self.x, self.y, self.vy) == True:
+                    self.vy = -self.jump_force
+                    enemy.take_damage(self.vy)
+                elif enemy.check_collision(self.x, self.y, self.vy) == False and self.invincible == False:
+                    self.take_damage()
+                    self.time_invincible = self.invincible_timer()
+
+        if (time.time() - self.time_invincible) > 1:
+            self.invincible = False
+
+        self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
+        if self.hp <= 0:
+            print("Game Over")
+            pyxel.quit()
 
     def draw(self):
         screen_x = self.x - scroll_x
-        if (pyxel.frame_count // 5) % 2 == 0:
-            pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
+        if self.invincible == False:
+            if (pyxel.frame_count // 5) % 2 == 0:
+                pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
+            else:
+                pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
         else:
-            pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
+            if (pyxel.frame_count // 5) % 2 == 0:
+                pyxel.dither(0.5)
+                pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
+                pyxel.dither(1)
+            else:
+                pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
+        if self.hp < self.max_hp:
+            self.healthbar.draw()
+
         #pyxel.rect(self.x + 2 - scroll_x, self.y - 1,1,1,9)
         #pyxel.rect(self.x + 4 - scroll_x, self.y - 1,1,1,9)
         #pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
@@ -244,7 +280,7 @@ class App:
         for enemy in enemies:
             enemy.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
-        tile_x ,tile_y = self.physics.get_tile(self.player.x, self.player.y)
-        pyxel.text(10,20,f"tile x,y : {tile_x,tile_y}",9)
-        pyxel.text(10,30,f"on floor : {self.physics.is_on_floor(self.player.x,self.player.y)}",9)
+        pyxel.text(10,20,f"Invincible : {self.player.invincible}",9)
+
+
 App()
