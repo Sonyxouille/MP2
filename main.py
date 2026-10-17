@@ -107,6 +107,9 @@ class Physics:
     def get_tile(self,x,y):
         tile_x = x//8
         tile_y = y//8
+        if y < 0:
+            tile_y = y//-8
+            return pyxel.tilemaps[0].pget(tile_x,tile_y)
         return pyxel.tilemaps[0].pget(tile_x,tile_y)
     
     def is_on_floor(self,x,y):
