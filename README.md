@@ -57,3 +57,4 @@ Khalamytho (pote du héros/victime)
 - Boss
 - Coder easter egg
 - Faire changement de map
+- Scroll_Y ou changement juste quand on change de map (à voir)

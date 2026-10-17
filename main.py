@@ -1,3 +1,4 @@
+import time
 import pyxel
 
 TILE_1 = (4,1)
@@ -23,10 +24,11 @@ TILE_20 = (6,6)
 TILE_21 = (7,6)
 TILE_22 = (6,7)
 TILE_23 = (7,7)
-TILE_24 = (1,0)
-TILE_25 = (5,1)
+TILE_24 = (5,1)
 
-SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24 ]
+TILE_PLATFORM = (1,0)
+
+SOLID_TILE = [TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7, TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15, TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23, TILE_24, TILE_PLATFORM ]
 
 scroll_x = 0
 SCROLL_BORDER = 64
@@ -41,13 +43,15 @@ class Player:
         self.mouvement = False
         self.physics = Physics()
         self.is_on_the_ground = False
+        self.touch_a_left_wall = False
+        self.touch_a_right_wall = False
         self.jump_force = 6
 
     def update(self):
-        if pyxel.btn(pyxel.KEY_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
             self.f = 8
             self.x += self.vx
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False:
             self.f = -8
             self.x -= self.vx
 
@@ -58,12 +62,22 @@ class Player:
         self.vy += self.physics.gravity
         self.y += self.vy
 
-        if self.physics.is_on_floor(self.x ,self.y):
+        if self.physics.is_on_floor(self.x, self.y):
             self.is_on_the_ground = True
             self.vy = 0
             self.y = self.physics.get_tile_y(self.y)
         else:
             self.is_on_the_ground = False
+        
+        if self.physics.touch_a_left_wall(self.x, self.y):
+            self.touch_a_left_wall = True
+        else:
+            self.touch_a_left_wall = False
+
+        if self.physics.touch_a_right_wall(self.x, self.y):
+            self.touch_a_right_wall = True
+        else:
+            self.touch_a_right_wall = False
 
     def draw(self):
         screen_x = self.x - scroll_x
@@ -73,6 +87,8 @@ class Player:
             pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
         pyxel.rect(self.x + 8 - scroll_x, self.y + 8,1,1,9)
         pyxel.rect(self.x - scroll_x, self.y + 8,1,1,9)
+        pyxel.rect(self.x + 9 - scroll_x, self.y,1,1,9)
+        pyxel.rect(self.x -1 - scroll_x, self.y,1,1,9)
 
 class Physics:
     def __init__(self):
@@ -89,6 +105,20 @@ class Physics:
         tile_left = self.get_tile(x, y + 8)
         tile_right = self.get_tile(x + 8, y + 8)
         if tile_left in SOLID_TILE or tile_right in SOLID_TILE:
+            return True
+        else:
+            return False
+
+    def touch_a_left_wall(self,x,y):
+        tile_left = self.get_tile(x-1,y)
+        if tile_left in SOLID_TILE and not tile_left in TILE_PLATFORM:
+            return True
+        else:
+            return False
+
+    def touch_a_right_wall(self,x,y):
+        tile_right = self.get_tile(x+9,y)
+        if tile_right in SOLID_TILE and not tile_right in TILE_PLATFORM:
             return True
         else:
             return False
