@@ -51,7 +51,8 @@ Khalamytho (pote du héros/victime)
 - Menu (à faire à la fin)
 
 ### Gaëtan
-- Collisions
+- Collisions avec maps (1ere map faite)
+- Collisions avec ennemis
 - Détecter les tuiles
 - Ennemis
 - Boss
