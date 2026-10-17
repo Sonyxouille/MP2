@@ -62,7 +62,11 @@ class Player:
         self.vy += self.physics.gravity
         self.y += self.vy
 
-        if self.physics.is_on_floor(self.x, self.y):
+        if self.physics.is_on_floor(self.x+1, self.y) and self.vy >= 0 and self.f == - 8:
+            self.is_on_the_ground = True
+            self.vy = 0
+            self.y = self.physics.get_tile_y(self.y)
+        elif self.physics.is_on_floor(self.x, self.y) and self.vy >= 0:
             self.is_on_the_ground = True
             self.vy = 0
             self.y = self.physics.get_tile_y(self.y)
@@ -85,10 +89,10 @@ class Player:
             pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
         else:
             pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
-        pyxel.rect(self.x + 8 - scroll_x, self.y + 8,1,1,9)
-        pyxel.rect(self.x - scroll_x, self.y + 8,1,1,9)
-        pyxel.rect(self.x + 9 - scroll_x, self.y,1,1,9)
-        pyxel.rect(self.x -1 - scroll_x, self.y,1,1,9)
+        pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
+        pyxel.rect(self.x + 3 - scroll_x, self.y + 8,1,1,9)
+        pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
+        pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
 class Physics:
     def __init__(self):
@@ -102,8 +106,8 @@ class Physics:
         return pyxel.tilemaps[0].pget(tile_x,tile_y)
     
     def is_on_floor(self,x,y):
-        tile_left = self.get_tile(x, y + 8)
-        tile_right = self.get_tile(x + 8, y + 8)
+        tile_left = self.get_tile(x + 2, y + 8)
+        tile_right = self.get_tile(x + 4, y + 8)
         if tile_left in SOLID_TILE or tile_right in SOLID_TILE:
             return True
         else:
