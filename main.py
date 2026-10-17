@@ -100,14 +100,21 @@ class Player:
         #pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
 class Enemy:
-    def __init__(self,x,y):
+    def __init__(self,x,y,hp):
         self.x = x
         self.y = y
         self.vx = 1
         self.f = 8
-        self.hp = 100 #HP temporaire
+        self.hp = hp
+        self.max_hp = self.hp
         self.direction = True #False pour gauche, True pour droite
         self.physics = Physics()
+        self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
+
+    def take_damage(self):
+        self.hp -= 10
+        if self.hp <= 0:
+            self.hp = 0
 
     def update(self):
         if self.direction == False:
@@ -121,10 +128,31 @@ class Enemy:
             self.direction = True
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
+            self.take_damage()
+        self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
     def draw(self):
-        pyxel.blt(self.x - scroll_x ,self.y,0,0,24,self.f,8,2)
+        if self.hp > 0:
+            pyxel.blt(self.x - scroll_x ,self.y,0,0,24,self.f,8,2)
+        if self.hp > 0 and self.hp < self.max_hp:
+            self.healthbar.draw()
 
+class HealthBar:
+    def __init__(self,x,y,max_hp,current_hp):
+        self.x = x
+        self.y = y
+        self.max_hp = max_hp
+        self.current_hp = current_hp
+
+    def update(self,x,y,max_hp,current_hp):
+        self.x = x
+        self.y = y
+        self.max_hp = max_hp
+        self.current_hp = current_hp
+
+    def draw(self):
+        pyxel.rect(self.x - scroll_x, self.y - 2,8,1,0)
+        pyxel.rect(self.x - scroll_x, self.y - 2,(self.current_hp/self.max_hp)*8,1,7)
 
 class Physics:
     def __init__(self):
@@ -182,7 +210,7 @@ class App:
         self.map_whidth = 2040
         self.physics = Physics()
         self.player = Player(50, 50)
-        self.enemy1 = Enemy(10, 112)
+        self.enemy1 = Enemy(10, 112,500)
         pyxel.run(self.update, self.draw)
 
     def update(self):
