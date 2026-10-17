@@ -52,7 +52,7 @@ class Player:
         if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
             self.f = 8
             self.x += self.vx
-        if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False:
+        if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False and self.x > 0:
             self.f = -8
             self.x -= self.vx
         if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
@@ -66,7 +66,6 @@ class Player:
             self.is_on_the_ground = False
             self.key_down = time.time()
         elif self.physics.is_on_floor(self.x, self.y) and self.vy >= 0 and (time.time() - self.key_down) > 0.2:
-            print(time.time() - self.key_down)
             self.is_on_the_ground = True
             self.vy = 0
             self.y = self.physics.get_tile_y(self.y)
@@ -93,8 +92,8 @@ class Player:
             pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
         else:
             pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
-        pyxel.rect(self.x + 2 - scroll_x, self.y - 1,1,1,9)
-        pyxel.rect(self.x + 4 - scroll_x, self.y - 1,1,1,9)
+        #pyxel.rect(self.x + 2 - scroll_x, self.y - 1,1,1,9)
+        #pyxel.rect(self.x + 4 - scroll_x, self.y - 1,1,1,9)
         #pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
         #pyxel.rect(self.x + 3 - scroll_x, self.y + 8,1,1,9)
         #pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
@@ -104,11 +103,28 @@ class Enemy:
     def __init__(self,x,y):
         self.x = x
         self.y = y
-        self.direction = False #False pour gauche, True pour droite
         self.vx = 1
+        self.f = 8
         self.hp = 100 #HP temporaire
+        self.direction = True #False pour gauche, True pour droite
+        self.physics = Physics()
 
-        
+    def update(self):
+        if self.direction == False:
+            self.x -= self.vx
+            self.f = -8
+        else:
+            self.x += self.vx
+            self.f = 8
+
+        if self.physics.touch_a_left_wall(self.x, self.y) or self.x < 0:
+            self.direction = True
+        if self.physics.touch_a_right_wall(self.x, self.y):
+            self.direction = False
+
+    def draw(self):
+        pyxel.blt(self.x - scroll_x ,self.y,0,0,24,self.f,8,2)
+
 
 class Physics:
     def __init__(self):
@@ -166,6 +182,7 @@ class App:
         self.map_whidth = 2040
         self.physics = Physics()
         self.player = Player(50, 50)
+        self.enemy1 = Enemy(10, 112)
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -173,11 +190,13 @@ class App:
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0,min(scroll_x,self.map_whidth-128))
         self.player.update()
+        self.enemy1.update()
 
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,0,256,256)
         self.player.draw()
+        self.enemy1.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         tile_x ,tile_y = self.physics.get_tile(self.player.x, self.player.y)
         pyxel.text(10,20,f"tile x,y : {tile_x,tile_y}",9)
