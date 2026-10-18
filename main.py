@@ -1,6 +1,7 @@
 import time
 import pyxel
 
+#TILE MAP DE BASE
 TILE_1 = (5,0)
 TILE_2 = (6,0)
 TILE_3 = (7,0)
@@ -27,9 +28,26 @@ TILE_23 = (7,7)
 
 TILE_PLATFORM = (1,0)
 
+#TILE GROTTE
+TILE_24 = (0,9)
+TILE_25 = (1,9)
+TILE_26 = (2,9)
+TILE_27 = (3,9)
+TILE_28 = (4,9)
+TILE_29 = (5,9)
+TILE_30 = (6,9)
+TILE_31 = (4,11)
+TILE_32 = (5,11)
+
 SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7,
               TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15,
-              TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23]
+              TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23,
+              TILE_24, TILE_25, TILE_26, TILE_27, TILE_28, TILE_29, TILE_30, TILE_31,
+              TILE_32]
+
+ETAGES = [("Map de base", 0, 2040), ("Grotte", 256, 512)] #0 : nom de l'étage, 1 : map_height, 2 : map_width
+
+scroll_y = 0
 scroll_x = 0
 SCROLL_BORDER = 64
 
@@ -47,6 +65,7 @@ class Player:
         self.time_invincible = 0
         self.hp = 100
         self.max_hp = 100
+        self.etage_actuel = 1
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.is_on_the_ground = False
@@ -119,18 +138,19 @@ class Player:
 
     def draw(self):
         screen_x = self.x - scroll_x
+        screen_y = self.y - scroll_y
         if self.invincible == False:
             if (pyxel.frame_count // 5) % 2 == 0:
-                pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
+                pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
             else:
-                pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
+                pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
         else:
             if (pyxel.frame_count // 5) % 2 == 0:
                 pyxel.dither(0.5)
-                pyxel.blt(screen_x,self.y,0,0,16,self.f,8,2)
+                pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
                 pyxel.dither(1)
             else:
-                pyxel.blt(screen_x,self.y,0,8,16,self.f,8,2)
+                pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
         if self.hp < self.max_hp:
             self.healthbar.draw()
 
@@ -184,7 +204,7 @@ class Enemy:
 
     def draw(self):
         if self.hp > 0:
-            pyxel.blt(self.x - scroll_x ,self.y,0,0,24,self.f,8,2)
+            pyxel.blt(self.x - scroll_x ,self.y - scroll_y,0,0,24,self.f,8,2)
         if self.hp > 0 and self.hp < self.max_hp:
             self.healthbar.draw()
 
@@ -202,8 +222,8 @@ class HealthBar:
         self.current_hp = current_hp
 
     def draw(self):
-        pyxel.rect(self.x - scroll_x, self.y - 2,8,1,0)
-        pyxel.rect(self.x - scroll_x, self.y - 2,(self.current_hp/self.max_hp)*8,1,7)
+        pyxel.rect(self.x - scroll_x, self.y - 2 - scroll_y,8,1,0)
+        pyxel.rect(self.x - scroll_x, self.y - 2 - scroll_y,(self.current_hp/self.max_hp)*8,1,7)
 
 class Physics:
     def __init__(self):
@@ -321,14 +341,14 @@ class Creatif:
             self.valeurs_ennemi[variable] = max(1, self.valeurs_ennemi[variable] - pas)
 
         pos_x = (pyxel.mouse_x + scroll_x) // 8
-        pos_y = pyxel.mouse_y // 8
+        pos_y = (pyxel.mouse_y + scroll_y) // 8
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             enemies.append(Enemy(pos_x * 8, pos_y * 8, self.valeurs_ennemi["hp"], self.valeurs_ennemi["vx"]))
 
     def draw_ennemi(self):
         pos_x = (pyxel.mouse_x + scroll_x) // 8
-        pos_y = pyxel.mouse_y // 8
-        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8, 8, 8, 10)
+        pos_y = (pyxel.mouse_y + scroll_y) // 8
+        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8 - scroll_y, 8, 8, 10)
 
         pyxel.rect(14, 30, 100, 30, 0)
         pyxel.rectb(14, 30, 100, 30, 10)
@@ -374,16 +394,16 @@ class Creatif:
         self.selectionne = (self.selectionne + pyxel.mouse_wheel) % len(SOLID_TILE)
 
         pos_x = (pyxel.mouse_x + scroll_x) // 8
-        pos_y = pyxel.mouse_y // 8
+        pos_y = (pyxel.mouse_y + scroll_y) // 8
         if pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
-            pyxel.tilemaps[0].pset(pos_x, pos_y, SOLID_TILE[self.selectionne])
+            pyxel.tilemaps[0].pset(pos_x, pos_y, SOLID_TILE[player.etage_actuel][self.selectionne])
         elif pyxel.btn(pyxel.MOUSE_BUTTON_RIGHT):
             pyxel.tilemaps[0].pset(pos_x, pos_y, (0,0))
 
     def draw_tiles(self):
         pos_x = (pyxel.mouse_x + scroll_x) // 8
-        pos_y = pyxel.mouse_y // 8
-        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8, 8, 8, 10)
+        pos_y = (pyxel.mouse_y + scroll_y) // 8
+        pyxel.rectb(pos_x * 8 - scroll_x, pos_y * 8 - scroll_y, 8, 8, 10)
 
         tile = SOLID_TILE[self.selectionne]
         u = tile[0] * 8
@@ -400,13 +420,14 @@ class App:
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
         pyxel.load("1.pyxres")
         self.map_width = 2040
+        self.map_height = 384
         self.player = Player(50, 50)
         self.creatif = Creatif()
         enemies.append(Enemy(10, 112, 100))
         pyxel.run(self.update, self.draw)
 
     def update(self):
-        global scroll_x
+        global scroll_x, scroll_y
         if pyxel.btnp(pyxel.KEY_F1):
             self.creatif.on_off()
         if self.creatif.active:
@@ -415,12 +436,15 @@ class App:
             self.player.update()
             for enemy in enemies:
                 enemy.update()
+        self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
-        scroll_x = max(0,min(scroll_x,self.map_width-128))
+        scroll_x = max(0, min(scroll_x,self.map_width - 128))
+        scroll_y = ETAGES[self.player.etage_actuel][1]
+        scroll_y = max(0, min(scroll_y,self.map_height - 128))
 
     def draw(self):
         pyxel.cls(1)
-        pyxel.bltm(0,0,0,scroll_x,0,256,256)
+        pyxel.bltm(0,0,0,scroll_x,scroll_y,256,256)
         for enemy in enemies:
             enemy.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
