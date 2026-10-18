@@ -65,7 +65,7 @@ class Player:
         self.time_invincible = 0
         self.hp = 100
         self.max_hp = 100
-        self.etage_actuel = 1
+        self.etage_actuel = 0
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.is_on_the_ground = False
@@ -396,7 +396,7 @@ class Creatif:
         pos_x = (pyxel.mouse_x + scroll_x) // 8
         pos_y = (pyxel.mouse_y + scroll_y) // 8
         if pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
-            pyxel.tilemaps[0].pset(pos_x, pos_y, SOLID_TILE[player.etage_actuel][self.selectionne])
+            pyxel.tilemaps[0].pset(pos_x, pos_y, SOLID_TILE[self.selectionne])
         elif pyxel.btn(pyxel.MOUSE_BUTTON_RIGHT):
             pyxel.tilemaps[0].pset(pos_x, pos_y, (0,0))
 
@@ -419,7 +419,7 @@ class App:
     def __init__(self):
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
         pyxel.load("1.pyxres")
-        self.map_width = 2040
+        self.map_width = 0
         self.map_height = 384
         self.player = Player(50, 50)
         self.creatif = Creatif()
