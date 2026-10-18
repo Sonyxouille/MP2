@@ -46,7 +46,7 @@ Khalamytho (pote du héros/victime)
   les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
 - Musique
 - Attaques
-- Trouver idées easter egg
+- Trouver idées easter egg (flappy bird fin, )
 - Menu (à faire à la fin)
 
 ### Gaëtan
