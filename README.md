@@ -51,7 +51,7 @@ Khalamytho (pote du héros/victime)
 
 ### Sonyxou
 
-Le flappy bird ce ramasse avec une pièce jaune pour l'instant
+Flappy Bird dans le mode créa
 
 #### **A faire**
 - Boss

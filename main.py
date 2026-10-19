@@ -308,7 +308,7 @@ class TakeItems:
         if y < 0:
             tile_y = y//-8
         if pyxel.tilemaps[0].pget(tile_x,tile_y) == TILE_PIECE_JAUNE:
-            player.flappy_bird = True
+            pass
 
 class Creatif:
     def __init__(self):
