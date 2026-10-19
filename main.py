@@ -102,7 +102,8 @@ class Player:
                 self.vy -= self.jump_force
         elif self.flappy_bird == True:
             self.f = 8
-            self.x += self.vx
+            if self.touch_a_right_wall == False:
+                self.x += self.vx
             if pyxel.btnp(pyxel.KEY_UP):
                 self.vy = -self.jump_force
 
@@ -314,7 +315,7 @@ class Creatif:
         self.page = "menu"
         self.options = ["Modifier le perso", "Placer un ennemi", "Modifier les tiles"]
         self.choix_stat = 0
-        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1)]
+        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1), ("flappy_bird", False)]
         self.choix_stat_ennemi = 0
         self.stats_ennemi = [("hp", 10), ("vx", 1)]
         self.valeurs_ennemi = {"hp": 100, "vx": 1}
@@ -343,10 +344,16 @@ class Creatif:
             self.choix_stat = (self.choix_stat - 1) % len(self.stats_perso)
 
         variable, pas = self.stats_perso[self.choix_stat]
-        if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
-            setattr(player, variable, getattr(player, variable) + pas)
-        if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
-            setattr(player, variable, max(0, getattr(player, variable) - pas))
+        if type(getattr(player, variable)) == int:
+            if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
+                setattr(player, variable, getattr(player, variable) + pas)
+            if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
+                setattr(player, variable, max(0, getattr(player, variable) - pas))
+        elif type(getattr(player, variable)) == bool:
+            if pyxel.btnp(pyxel.KEY_RIGHT):
+                setattr(player, variable, True)
+            if pyxel.btnp(pyxel.KEY_LEFT):
+                setattr(player, variable, False)
         player.hp = max(1,min(player.hp, player.max_hp))
         player.max_hp = max(1,player.max_hp)
 
@@ -447,10 +454,6 @@ class Creatif:
 
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
-class FlappyBird:
-    def __init__(self):
-        pass
-
 class App:
     def __init__(self):
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
@@ -473,7 +476,8 @@ class App:
             self.player.update()
             for enemy in enemies:
                 enemy.update()
-        self.take_item.check_item(self.player.x,self.player.y,self.player)
+        self.take_item.check_item(self.player.x + 8,self.player.y,self.player)
+        self.take_item.check_item(self.player.x - 1,self.player.y,self.player)
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))

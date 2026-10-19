@@ -51,6 +51,8 @@ Khalamytho (pote du héros/victime)
 
 ### Sonyxou
 
+Le flappy bird ce ramasse avec une pièce jaune pour l'instant
+
 #### **A faire**
 - Boss
 - Coder easter egg
