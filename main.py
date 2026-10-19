@@ -50,7 +50,7 @@ SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TIL
 
 ITEM_TILE = [TILE_PIECE_JAUNE]
 
-ETAGES = [("Map de base", 0, 2040), ("Grotte", 256, 512)] #0 : nom de l'étage, 1 : map_height, 2 : map_width
+ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 256, 512,(50,352))] #0 : nom de l'étage, 1 : map_height, 2 : map_width
 
 scroll_y = 0
 scroll_x = 0
@@ -60,10 +60,9 @@ enemies = []
 
 class Player:
     def __init__(self,x,y):
-        self.spawn_x = x
-        self.spawn_y = y
-        self.x = x
-        self.y = y
+        self.etage_actuel = 0
+        self.x = ETAGES[self.etage_actuel][3][0]
+        self.y = ETAGES[self.etage_actuel][3][1]
         self.vx = 2
         self.vy = 2
         self.f = 8
@@ -72,7 +71,8 @@ class Player:
         self.time_invincible = 0
         self.hp = 100
         self.max_hp = 100
-        self.etage_actuel = 0
+        self.spawn_x = ETAGES[self.etage_actuel][3][0]
+        self.spawn_y = ETAGES[self.etage_actuel][3][1]
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.is_on_the_ground = False
@@ -305,7 +305,6 @@ class TakeItems:
         print(pyxel.tilemaps[0].pget(tile_x,tile_y))
         if pyxel.tilemaps[0].pget(tile_x,tile_y) == TILE_PIECE_JAUNE:
             player.flappy_bird = True
-    
 
 class Creatif:
     def __init__(self):
@@ -315,7 +314,7 @@ class Creatif:
         self.page = "menu"
         self.options = ["Modifier le perso", "Placer un ennemi", "Modifier les tiles"]
         self.choix_stat = 0
-        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1), ("flappy_bird", False)]
+        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1), ("flappy_bird", False), ("etage_actuel", 1)]
         self.choix_stat_ennemi = 0
         self.stats_ennemi = [("hp", 10), ("vx", 1)]
         self.valeurs_ennemi = {"hp": 100, "vx": 1}
@@ -356,16 +355,30 @@ class Creatif:
                 setattr(player, variable, False)
         player.hp = max(1,min(player.hp, player.max_hp))
         player.max_hp = max(1,player.max_hp)
+        player.etage_actuel = min(player.etage_actuel, len(ETAGES) - 1)
 
     def draw_perso(self, player):
         pyxel.rect(14, 30, 100, 60, 0)
         pyxel.rectb(14, 30, 100, 60, 10)
-        for i, stat in enumerate(self.stats_perso):
+        
+        affichage_max = 5
+        debut = max(0, self.choix_stat - affichage_max + 1)
+        fin = min(debut + affichage_max, len(self.stats_perso))
+
+        for i in range(debut, fin):
+            nom = self.stats_perso[i][0]
             if i == self.choix_stat:
                 couleur = 10
             else:
                 couleur = 7
-            pyxel.text(20, 38 + i * 10, f"{stat[0]} : {getattr(player, stat[0])}", couleur)
+            pyxel.text(20, 38 + (i - debut) * 10, f"{nom} : {getattr(player, nom)}", couleur)
+
+        if len(self.stats_perso) > affichage_max:
+            h_barre = 52
+            taille = h_barre * affichage_max // len(self.stats_perso)
+            position = h_barre * debut // len(self.stats_perso)
+            pyxel.rect(108, 34, 2, h_barre, 5)
+            pyxel.rect(108, 34 + position, 2, taille + 1, 10)
 
     def update_ennemi(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
