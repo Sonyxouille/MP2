@@ -61,8 +61,8 @@ enemies = []
 class Player:
     def __init__(self,x,y):
         self.etage_actuel = 0
-        self.x = ETAGES[self.etage_actuel][3][0]
-        self.y = ETAGES[self.etage_actuel][3][1]
+        self.x = x
+        self.y = y
         self.vx = 2
         self.vy = 2
         self.f = 8
@@ -106,6 +106,7 @@ class Player:
                 self.x += self.vx
             if pyxel.btnp(pyxel.KEY_UP):
                 self.vy = -self.jump_force
+            
 
         self.vy += self.physics.gravity
         self.y += self.vy
@@ -153,33 +154,38 @@ class Player:
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
         if self.hp <= 0:
-            print("Game Over")
-            pyxel.quit()
+            print("Game Over")  
+            pyxel.quit()    
+
+        if self.spawn_y != ETAGES[self.etage_actuel][3][1]:
+            self.spawn_x = ETAGES[self.etage_actuel][3][0]
+            self.spawn_y = ETAGES[self.etage_actuel][3][1]
+            self.x = self.spawn_x
+            self.y = self.spawn_y
 
     def draw(self):
         screen_x = self.x - scroll_x
         screen_y = self.y - scroll_y
-        if self.invincible == False:
-            if (pyxel.frame_count // 5) % 2 == 0:
-                pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
+        if self.flappy_bird == False:
+            if self.invincible == False:
+                if (pyxel.frame_count // 5) % 2 == 0:
+                    pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
+                else:
+                    pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
             else:
-                pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
-        else:
+                if (pyxel.frame_count // 5) % 2 == 0:
+                    pyxel.dither(0.5)
+                    pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
+                    pyxel.dither(1)
+                else:
+                    pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
+        elif self.flappy_bird == True:
             if (pyxel.frame_count // 5) % 2 == 0:
-                pyxel.dither(0.5)
-                pyxel.blt(screen_x,screen_y,0,0,16,self.f,8,2)
-                pyxel.dither(1)
+                pyxel.blt(screen_x, screen_y, 0, 16, 16, self.f, 8, 2)
             else:
-                pyxel.blt(screen_x,screen_y,0,8,16,self.f,8,2)
+                pyxel.blt(screen_x, screen_y, 0, 24, 16, self.f, 8, 2)
         if self.hp < self.max_hp:
             self.healthbar.draw()
-
-        #pyxel.rect(self.x + 2 - scroll_x, self.y - 1,1,1,9)
-        #pyxel.rect(self.x + 4 - scroll_x, self.y - 1,1,1,9)
-        #pyxel.rect(self.x + 5 - scroll_x, self.y + 8,1,1,9)
-        #pyxel.rect(self.x + 3 - scroll_x, self.y + 8,1,1,9)
-        #pyxel.rect(self.x + 8 - scroll_x, self.y + 3,1,1,9)
-        #pyxel.rect(self.x -1 - scroll_x, self.y + 3,1,1,9)
 
 class Enemy:
     def __init__(self,x,y,hp,vx=1):
@@ -198,7 +204,6 @@ class Enemy:
             self.hp -= 10 * -vy // 2
         elif vy > 0:
             self.hp -= 10 * vy // 2
-        print(f"Enemy HP: {self.hp}, VY: {vy // 2}")
 
     def check_collision(self,x,y,vy):
         if (x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y) and self.hp > 0:
@@ -302,7 +307,6 @@ class TakeItems:
         tile_y = y//8
         if y < 0:
             tile_y = y//-8
-        print(pyxel.tilemaps[0].pget(tile_x,tile_y))
         if pyxel.tilemaps[0].pget(tile_x,tile_y) == TILE_PIECE_JAUNE:
             player.flappy_bird = True
 
