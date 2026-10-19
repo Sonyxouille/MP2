@@ -1,12 +1,17 @@
 # Super Zboobi
 
 ## Story
-RAVUUUS est mort (le boss de la team Brather)
-Le nouveau chef de la team Brather est TheKairi69
-Zboobi sauve Khalamyto cette fois-ci
+Grâce à l'aide de Khalamyto, Zboubi parvient à s'échapper du château de Webeda. Dans la bataille, RAVUUUS, le terrible chef de la Team Brather, est vaincu et trouve la mort.
 
-TheKairi69 en représaille de la mort de RAVUUUS, il va capturer Khalamyto et donc Zboobi va partir le sauver
-Khalamyto avait réussi à sauver Zboobi mais il s'est fait capturer.
+Mais la victoire est de courte durée.
+
+À la tête de l'organisation, un nouveau chef prend la relève : TheKairi69. Furieux de la disparition de RAVUUUS, il jure de se venger et ordonne à ses hommes de traquer ceux qui l'ont tué. Peu de temps après, Khalamyto, qui avait pourtant réussi à sauver son ami, tombe dans un piège et se fait capturer à son tour.
+
+Cette fois, les rôles sont inversés.
+
+Zboubi, le petit slime que l'on croyait trop faible pour se battre, ne peut pas abandonner celui qui a tout risqué pour lui. Déterminé à lui rendre la pareille, il part sauver Khalamyto avant que TheKairi69 ne mette son plan à exécution.
+
+Zboubi réussira-t-il à sauver Khalamyto et à échapper à la vengeance de TheKairi69 ?
 
 ## BUT
 
@@ -20,17 +25,17 @@ Vaincre les ennemis, atteindre le boss de la Grotte et sauver Khalamyto
 - musique
 - originalité : easter egg, menu, utiliser plusieurs map, TILED (permet de faire des maps)
 
-Notes :
-Jouabilité
-Richesse/Complexité
-Originalité/Créativité
-Compétences techniques
-Respect des consignes/Présentation/Mode d'emploi
+### Notes :
+- Jouabilité
+- Richesse/Complexité
+- Originalité/Créativité
+- Compétences techniques
+- Respect des consignes/Présentation/Mode d'emploi
 
-Point bonus: 
-Ajouter grotte
+### Point bonus: 
+- Ajouter grotte
 
-A faire:
+### A faire:
 Fin en mode Flappy Bird après avoir butté le boss car grotte s'éffondre
 
 ## Ce qu'on garde
@@ -64,4 +69,4 @@ Flappy Bird dans le mode créa
 - Ennemi
 - Collisions avec maps
 - Collisions avec ennemis
-- Détecter les tuiles
+- Détecter les tiles
