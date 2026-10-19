@@ -39,11 +39,16 @@ TILE_30 = (6,9)
 TILE_31 = (4,11)
 TILE_32 = (5,11)
 
+#TILE ITEM
+TILE_PIECE_JAUNE = (2,1)
+
 SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7,
               TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15,
               TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23,
               TILE_24, TILE_25, TILE_26, TILE_27, TILE_28, TILE_29, TILE_30, TILE_31,
               TILE_32]
+
+ITEM_TILE = [TILE_PIECE_JAUNE]
 
 ETAGES = [("Map de base", 0, 2040), ("Grotte", 256, 512)] #0 : nom de l'étage, 1 : map_height, 2 : map_width
 
@@ -55,6 +60,8 @@ enemies = []
 
 class Player:
     def __init__(self,x,y):
+        self.spawn_x = x
+        self.spawn_y = y
         self.x = x
         self.y = y
         self.vx = 2
@@ -72,6 +79,7 @@ class Player:
         self.touch_a_left_wall = False
         self.touch_a_right_wall = False
         self.invincible = False
+        self.flappy_bird = False
 
     def invincible_timer(self):
         self.invincible = True
@@ -82,15 +90,21 @@ class Player:
         self.vy -= self.jump_force
 
     def update(self):
-        if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
+        if self.flappy_bird == False:
+            if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
+                self.f = 8
+                self.x += self.vx
+            if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False and self.x > 0:
+                self.f = -8
+                self.x -= self.vx
+            if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
+                self.is_on_the_ground = False
+                self.vy -= self.jump_force
+        elif self.flappy_bird == True:
             self.f = 8
             self.x += self.vx
-        if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False and self.x > 0:
-            self.f = -8
-            self.x -= self.vx
-        if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
-            self.is_on_the_ground = False
-            self.vy -= self.jump_force
+            if pyxel.btnp(pyxel.KEY_UP):
+                self.vy = -self.jump_force
 
         self.vy += self.physics.gravity
         self.y += self.vy
@@ -118,6 +132,11 @@ class Player:
         if self.physics.touch_a_ceiling(self.x, self.y):
             self.vy = 0
             self.y += 1
+
+        if self.y > (128 + ETAGES[self.etage_actuel][1]):
+            self.take_damage()
+            self.x = self.spawn_x
+            self.y = self.spawn_y
 
         for enemy in enemies:
             #if self.invincible == False:
@@ -234,7 +253,6 @@ class Physics:
         tile_y = y//8
         if y < 0:
             tile_y = y//-8
-            return pyxel.tilemaps[0].pget(tile_x,tile_y)
         return pyxel.tilemaps[0].pget(tile_x,tile_y)
     
     def is_on_floor(self,x,y):
@@ -273,6 +291,20 @@ class Physics:
         tile_y = (y+8) // 8
         floor_y = tile_y * 8
         return floor_y - 8
+
+class TakeItems:
+    def __init__(self):
+        pass
+
+    def check_item(self,x,y,player):
+        tile_x = x//8
+        tile_y = y//8
+        if y < 0:
+            tile_y = y//-8
+        print(pyxel.tilemaps[0].pget(tile_x,tile_y))
+        if pyxel.tilemaps[0].pget(tile_x,tile_y) == TILE_PIECE_JAUNE:
+            player.flappy_bird = True
+    
 
 class Creatif:
     def __init__(self):
@@ -415,6 +447,10 @@ class Creatif:
 
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
+class FlappyBird:
+    def __init__(self):
+        pass
+
 class App:
     def __init__(self):
         pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
@@ -423,6 +459,7 @@ class App:
         self.map_height = 384
         self.player = Player(50, 50)
         self.creatif = Creatif()
+        self.take_item = TakeItems()
         enemies.append(Enemy(10, 112, 100))
         pyxel.run(self.update, self.draw)
 
@@ -436,6 +473,7 @@ class App:
             self.player.update()
             for enemy in enemies:
                 enemy.update()
+        self.take_item.check_item(self.player.x,self.player.y,self.player)
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))

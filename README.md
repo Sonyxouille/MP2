@@ -49,13 +49,17 @@ Khalamytho (pote du héros/victime)
 - Trouver idées easter egg (flappy bird fin, )
 - Menu (à faire à la fin)
 
-### Gaëtan
-- Collisions avec maps (1ere map faite)
-- Collisions avec ennemis
-- Détecter les tuiles (good aussi normalement)
-- Vie
-- Ennemis
+### Sonyxou
+
+#### **A faire**
 - Boss
 - Coder easter egg
-- Faire changement de map
-- Créatif mode
+
+#### **Fait**
+- Faire changement de map (etage_actuel et ETAGES)
+- Créatif mode 
+- Vie
+- Ennemi
+- Collisions avec maps
+- Collisions avec ennemis
+- Détecter les tuiles
