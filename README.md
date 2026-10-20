@@ -17,6 +17,25 @@ Zboubi réussira-t-il à sauver Khalamyto et à échapper à la vengeance de The
 
 Vaincre les ennemis, atteindre le boss de la Grotte et sauver Khalamyto
 
+## TOUCHES
+- Flèches directionnelles pour avancer, reculer et sauter (flèche du bas uniquement pour descendre des plateformes)
+- F1 pour entrer ou sortir du mode créatif/dév
+  - Tab pour revenir à la sélection des menus
+  - Entrée pour choisir le menu
+  - Flèche du haut et du bas pour choisir son menu
+  - Menu joueur :
+    - Flèches gauche et droite pour changer de valeur
+    - Flèches du haut et du bas pour changer de variable
+  - Menu Ennemi :
+    - Flèches gauche et droite pour changer de valeur
+    - Flèches du haut et du bas pour changer de variable
+    - Clic gauche pour poser l'ennemi avec les valeurs choisis
+  - Menu Tile :
+    - Flèches directionnelles pour monter, descendre, avancer, reculer
+    - Molette de la sourie pour changer la tile séléctionnée
+    - Clic gauche pour placer la tile à l'endroit voulu
+    - Clic droit pour placer une tile vide à l'endroit voulu
+
 ## Exigences
 - vies
 - detecter les tuiles

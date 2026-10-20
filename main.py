@@ -50,7 +50,9 @@ SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TIL
 
 ITEM_TILE = [TILE_PIECE_JAUNE]
 
-ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 256, 512,(50,352))] #0 : nom de l'étage, 1 : map_height, 2 : map_width
+ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 256, 512,(50,352)), ("Grotte Eboulement 1", 384, 512,(50,480)),
+          ("Grotte Eboulement 2", 512, 512,(50,608)), ("Grotte Eboulement 3", 640, 512,(70,736)), ("Grotte Eboulement 4", 768, 512,(70,848)),
+          ("Grotte Eboulement 5", 896, 512,(72,976))] #0 : nom de l'étage, 1 : map_height, 2 : map_width, 3 : (spawn_x, spawn_y)
 
 scroll_y = 0
 scroll_x = 0
@@ -135,11 +137,6 @@ class Player:
             self.vy = 0
             self.y += 1
 
-        if self.y > (128 + ETAGES[self.etage_actuel][1]):
-            self.take_damage()
-            self.x = self.spawn_x
-            self.y = self.spawn_y
-
         for enemy in enemies:
             #if self.invincible == False:
                 if enemy.check_collision(self.x, self.y, self.vy) == True:
@@ -149,7 +146,7 @@ class Player:
                     self.take_damage()
                     self.time_invincible = self.invincible_timer()
 
-        if (time.time() - self.time_invincible) > 1:
+        if (time.time() - self.time_invincible) > 0.5:
             self.invincible = False
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
@@ -162,6 +159,12 @@ class Player:
             self.spawn_y = ETAGES[self.etage_actuel][3][1]
             self.x = self.spawn_x
             self.y = self.spawn_y
+
+        if self.y >= (120 + ETAGES[self.etage_actuel][1]):
+                    self.take_damage()
+                    self.vy = 0
+                    self.x = self.spawn_x
+                    self.y = self.spawn_y
 
     def draw(self):
         screen_x = self.x - scroll_x
@@ -473,10 +476,9 @@ class Creatif:
 
 class App:
     def __init__(self):
-        pyxel.init(128, 128, title="LE JEU DE LA MORT QUI TUE")
+        pyxel.init(128, 128, title="SUPER ZBOOBI")
         pyxel.load("1.pyxres")
         self.map_width = 0
-        self.map_height = 384
         self.player = Player(50, 50)
         self.creatif = Creatif()
         self.take_item = TakeItems()
@@ -499,7 +501,6 @@ class App:
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
         scroll_y = ETAGES[self.player.etage_actuel][1]
-        scroll_y = max(0, min(scroll_y,self.map_height - 128))
 
     def draw(self):
         pyxel.cls(1)
