@@ -32,6 +32,7 @@ Vaincre les ennemis, atteindre le boss de la Grotte et sauver Khalamyto
     - Clic gauche pour poser l'ennemi avec les valeurs choisis
   - Menu Tile :
     - Flèches directionnelles pour monter, descendre, avancer, reculer
+    - + et - au clavier ou au pavé numérique pour augmenter et diminuer la vitesse du fly
     - Molette de la sourie pour changer la tile séléctionnée
     - Clic gauche pour placer la tile à l'endroit voulu
     - Clic droit pour placer une tile vide à l'endroit voulu

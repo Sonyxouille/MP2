@@ -325,6 +325,7 @@ class Creatif:
         self.choix_stat_ennemi = 0
         self.stats_ennemi = [("hp", 10), ("vx", 1)]
         self.valeurs_ennemi = {"hp": 100, "vx": 1}
+        self.v = 3
 
     def on_off(self):
         self.active = not self.active
@@ -442,13 +443,18 @@ class Creatif:
 
     def update_tiles(self,player):
         if pyxel.btn(pyxel.KEY_RIGHT): 
-            player.x += 10
+            player.x += self.v
         if pyxel.btn(pyxel.KEY_LEFT) and player.x > 0: 
-            player.x -= 10
+            player.x -= self.v
         if pyxel.btn(pyxel.KEY_UP): 
-            player.y -= 3
+            player.y -= self.v
         if pyxel.btn(pyxel.KEY_DOWN): 
-            player.y += 3
+            player.y += self.v
+        if pyxel.btnp(pyxel.KEY_KP_PLUS) or pyxel.btnp(pyxel.KEY_EQUALS):
+            self.v += 1
+        if pyxel.btnp(pyxel.KEY_KP_MINUS) or pyxel.btnp(pyxel.KEY_6):
+            self.v = max(1, self.v - 1)
+        
         player.vy = 0
         self.selectionne = (self.selectionne + pyxel.mouse_wheel) % len(SOLID_TILE)
 
@@ -471,7 +477,6 @@ class Creatif:
         pyxel.rect(108, 4, 12, 12, 0)
         pyxel.rectb(108, 4, 12, 12, 10)
         pyxel.blt(110, 6, 0, u, v, 8, 8)
-
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
 class App:
