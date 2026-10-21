@@ -442,9 +442,9 @@ class Creatif:
 
     def update_tiles(self,player):
         if pyxel.btn(pyxel.KEY_RIGHT): 
-            player.x += 3
+            player.x += 10
         if pyxel.btn(pyxel.KEY_LEFT) and player.x > 0: 
-            player.x -= 3
+            player.x -= 10
         if pyxel.btn(pyxel.KEY_UP): 
             player.y -= 3
         if pyxel.btn(pyxel.KEY_DOWN): 
@@ -482,7 +482,19 @@ class App:
         self.player = Player(50, 50)
         self.creatif = Creatif()
         self.take_item = TakeItems()
-        enemies.append(Enemy(10, 112, 100))
+        enemies.append(Enemy(112, 112, 100))
+        enemies.append(Enemy(364, 88, 100))
+        enemies.append(Enemy(512, 104, 100))
+        enemies.append(Enemy(856, 104, 100))
+        enemies.append(Enemy(912, 96, 100))
+        enemies.append(Enemy(1168, 64, 100))
+        enemies.append(Enemy(1296, 64, 100))
+        enemies.append(Enemy(1384, 40, 100))
+        enemies.append(Enemy(1536, 56, 100))
+        enemies.append(Enemy(1552, 24, 100))
+        enemies.append(Enemy(1600, 96, 100))
+        enemies.append(Enemy(1840, 8, 100))
+        enemies.append(Enemy(1872, 80, 100))
         pyxel.run(self.update, self.draw)
 
     def update(self):
