@@ -227,6 +227,10 @@ class Enemy:
             self.direction = True
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
+        if self.physics.get_tile(self.x-1,self.y+8) == (0,0):
+            self.direction = True
+        if self.physics.get_tile(self.x+8,self.y+8) == (0,0):
+            self.direction = False
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
