@@ -69,9 +69,11 @@ Khalamytho (pote du héros/victime)
 - Design/Graphisme (Les différentes maps (Map de base, Map de grotte, Map de grotte éboulement), 
   les entités (Zboobi (avec et sans ailes), Khalamyto (attaché, pas attaché puis dans le sac de Zboobi)),
   les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
-- Musique
+- Musique (Menu, Premier étage, Boss) 
+- Son (Clique sur menu, saute, récupère un objet, tombe dans le vide, prendre un dégât, mort
+        Attaque boule de feu, Attaque Laser des piafs, Attaque du boss, Vol (Flappy Bird))
 - Design de boule de feu
-- Refaire grotte en mettant un espace entre chaque
+- Refaire grotte en mettant un espace entre chaque étage + faire que les sauts soient possibles
 - Trouver idées easter egg (flappy bird fin, )
 
 ### Sonyxou
