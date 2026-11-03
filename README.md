@@ -70,13 +70,14 @@ Khalamytho (pote du héros/victime)
   les entités (Zboobi (avec et sans ailes), Khalamyto (attaché, pas attaché puis dans le sac de Zboobi)),
   les ennemis (Map de base, Grotte), boss (à voir le design), les items (clé, sac à dos, un truc pour donner de la vie))
 - Musique
-- Attaques
+- Design de boule de feu
+- Refaire grotte en mettant un espace entre chaque
 - Trouver idées easter egg (flappy bird fin, )
-- Menu (à faire à la fin)
 
 ### Sonyxou
-
+Attaques
 Flappy Bird dans le mode créa
+Menu (à faire à la fin)
 
 #### **A faire**
 - Boss

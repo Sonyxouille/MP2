@@ -210,7 +210,7 @@ class Enemy:
 
     def check_collision(self,x,y,vy):
         if (x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y) and self.hp > 0:
-            if vy > 0 and y + 8 <= self.y + 4:
+            if y + 8 <= self.y + 4:
                 return True
             else:
                 return False
