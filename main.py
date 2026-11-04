@@ -304,6 +304,9 @@ class Fireball:
         self.f = f
         self.time = time.time()
 
+    def move(self,player):
+        pass
+
     def update(self):
         if time.time() - self.time > 0.3:
             self.stage = 4
@@ -405,6 +408,7 @@ class TakeItems:
 
 class Creatif:
     def __init__(self):
+        self.physics = Physics()
         self.active = False
         self.selectionne = 0
         self.choix_menu = 0
@@ -492,7 +496,7 @@ class Creatif:
 
         pos_x = (pyxel.mouse_x + scroll_x) // 8
         pos_y = (pyxel.mouse_y + scroll_y) // 8
-        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.physics.get_tile(pos_x * 8, pos_y*8 + 8) in SOLID_TILE:
             enemies.append(Enemy(pos_x * 8, pos_y * 8, self.valeurs_ennemi["hp"], self.valeurs_ennemi["vx"]))
 
     def draw_ennemi(self):
@@ -572,12 +576,12 @@ class Creatif:
 class App:
     def __init__(self):
         pyxel.init(128, 128, title="SUPER ZBOOBI")
-        pyxel.load("2.pyxres")
+        pyxel.load("4.pyxres")
         self.map_width = 0
         self.player = Player(50, 50)
         self.creatif = Creatif()
         self.take_item = TakeItems()
-        self.fireball = Fireball(50, 50, 1, 1, -8)
+        self.fireball = Fireball(50, 50, 1, 1, 8)
         enemies.append(Enemy(112, 112, 100))
         enemies.append(Enemy(364, 88, 100))
         enemies.append(Enemy(512, 104, 100))
