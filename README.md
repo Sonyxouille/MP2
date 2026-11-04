@@ -93,3 +93,18 @@ Menu (à faire à la fin)
 - Collisions avec maps
 - Collisions avec ennemis
 - Détecter les tiles
+
+### Son
+Effets sonores (à jouer sur le canal 3) :
+
+32 : saut
+33 : récupération d’objet
+34 : chute dans le vide
+35 : dégâts
+36 : mort du joueur
+37 : mort d’un petit ennemi
+38 et 39 : mort du boss, en deux couches à jouer ensemble
+40 : boule de feu
+41 : battement d’ailes (Flappy Bird)
+42 : sélection dans le menu
+43 : boss touché
