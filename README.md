@@ -77,6 +77,7 @@ Khalamytho (pote du héros/victime)
 - Trouver idées easter egg (flappy bird fin, )
 
 ### Sonyxou
+Faire difficulté normale et nightmare
 Attaques
 Flappy Bird dans le mode créa
 Menu (à faire à la fin)

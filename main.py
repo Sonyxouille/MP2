@@ -41,7 +41,23 @@ TILE_31 = (4,11)
 TILE_32 = (5,11)
 
 #TILE ITEM
-TILE_PIECE_JAUNE = (2,1)
+COINS_DATA = [ #x, y, tile
+    (14, 8, 1), (16, 14, 1), (18, 4, 2), (24, 10, 2), (25, 4, 3),
+    (30, 7, 2), (39, 6, 2), (42, 11, 1), (47, 11, 3), (55, 1, 3),
+    (60, 13, 3), (72, 4, 2), (73, 9, 3), (79, 4, 2), (85, 6, 2),
+    (89, 4, 3), (95, 4, 3), (99, 7, 3), (105, 9, 3), (116, 12, 2),
+    (117, 9, 1), (123, 7, 3), (126, 12, 3), (130, 3, 3), (132, 13, 3),
+    (136, 5, 3), (137, 0, 3), (142, 5, 3), (142, 12, 3), (149, 3, 1),
+    (151, 3, 1), (151, 8, 2), (153, 3, 1), (160, 4, 1), (162, 1, 1),
+    (165, 4, 1), (168, 1, 1), (172, 5, 3), (174, 5, 3), (176, 5, 3),
+    (180, 7, 2), (182, 2, 2), (186, 0, 2), (187, 3, 2), (190, 10, 2),
+    (191, 7, 2), (195, 0, 2), (196, 12, 3), (197, 3, 3), (210, 0, 2),
+    (211, 7, 3), (213, 7, 3), (217, 3, 2), (218, 11, 3), (227, 10, 2),
+    (234, 10, 2), (235, 1, 3), (235, 13, 3), (236, 13, 3), (239, 7, 3),
+    (244, 7, 3), (248, 0, 2), (253, 13, 1)
+]
+print(len(COINS_DATA))
+
 TILE_FLOWER_FLAME = [(0,4),(1,4)]
 
 SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7,
@@ -49,8 +65,6 @@ SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TIL
               TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23,
               TILE_24, TILE_25, TILE_26, TILE_27, TILE_28, TILE_29, TILE_30, TILE_31,
               TILE_32]
-
-ITEM_TILE = [TILE_PIECE_JAUNE]
 
 ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 256, 512,(50,352)), ("Grotte Eboulement 1", 384, 512,(50,480)),
           ("Grotte Eboulement 2", 512, 512,(50,608)), ("Grotte Eboulement 3", 640, 512,(70,736)), ("Grotte Eboulement 4", 768, 512,(70,848)),
@@ -64,6 +78,7 @@ enemies = []
 flying_ennemies = []
 fireballs = []
 lasers = []
+coins = []
 
 class Player:
     def __init__(self,x,y):
@@ -79,6 +94,7 @@ class Player:
         self.time_fireball = 0
         self.hp = 100
         self.max_hp = 100
+        self.coins = 0
         self.spawn_x = ETAGES[self.etage_actuel][3][0]
         self.spawn_y = ETAGES[self.etage_actuel][3][1]
         self.physics = Physics()
@@ -107,13 +123,13 @@ class Player:
 
     def update(self):
         if self.flappy_bird == False:
-            if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
-                self.f = 8
-                self.x += self.vx
             if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False and self.x > 0:
                 self.f = -8
                 self.x -= self.vx
-            if pyxel.btnp(pyxel.KEY_UP, 10, 3) and self.is_on_the_ground:
+            if pyxel.btn(pyxel.KEY_RIGHT) and self.touch_a_right_wall == False:
+                self.f = 8
+                self.x += self.vx
+            if pyxel.btnp(pyxel.KEY_UP, 10, 3) and self.is_on_the_ground == True:
                 self.is_on_the_ground = False
                 self.vy -= self.jump_force
             if pyxel.btnp(pyxel.KEY_E) and self.fireball == True and time.time() - self.time_fireball > 0.5:
@@ -149,7 +165,7 @@ class Player:
         else:
             self.touch_a_right_wall = False
 
-        if self.physics.touch_a_ceiling(self.x, self.y):
+        if self.physics.touch_a_ceiling(self.x, self.y) or self.y < -20:
             self.vy = 0
             self.y += 1
 
@@ -196,6 +212,9 @@ class Player:
                     self.x = self.spawn_x
                     self.y = self.spawn_y
 
+        if self.vy < -6:
+            self.vy = -6
+
     def draw(self):
         screen_x = self.x - scroll_x
         screen_y = self.y - scroll_y
@@ -240,6 +259,41 @@ class FlowerFlame:
                 pyxel.blt(self.x - scroll_x,self.y - scroll_y,0,0,32,8,8,2)
             elif self.tile == 1:
                 pyxel.blt(self.x - scroll_x,self.y - scroll_y,0,8,32,8,8,2)
+
+class Coin:
+    def __init__(self,x,y,tile):
+        self.x = x
+        self.y = y
+        self.tile = tile #1 gris, 2 rose, 3 vert
+        self.take = False
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if self.take == False:
+            if self.tile == 1:
+                pyxel.blt(self.x - scroll_x, self.y - scroll_y,0,0,8,8,8,2)
+            elif self.tile == 2:
+                pyxel.blt(self.x - scroll_x, self.y - scroll_y,0,8,8,8,8,2)
+            elif self.tile == 3:
+                pyxel.blt(self.x - scroll_x, self.y - scroll_y,0,16,8,8,8,2)
+
+class TakeItems:
+    def __init__(self):
+        pass
+
+    def check_flower_flame(self, player, flower_flame):
+        if (flower_flame.x < player.x + 8 and flower_flame.x + 8 > player.x and flower_flame.y < player.y + 8 and flower_flame.y + 8 > player.y):
+            player.fireball = True
+            flower_flame.take = True
+
+    def check_coins(self, player, coins):
+        for coin in coins[:]:
+            if (coin.x < player.x + 8 and coin.x + 8 > player.x and coin.y < player.y + 8 and coin.y + 8 > player.y):
+                player.coins += 1
+                print(player.coins)
+                coins.remove(coin)
 
 class Enemy:
     def __init__(self,x,y,hp,vx=1):
@@ -351,7 +405,7 @@ class FlyingEnemy:
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
 
-        if (time.time() - self.timer_laser) > 0.1 and self.detect_player() == True:
+        if (time.time() - self.timer_laser) > 0.25 and self.detect_player() == True:
             lasers.append(Laser(self.x,self.y,self.player))
             self.timer_laser = time.time()
 
@@ -512,18 +566,6 @@ class Physics:
         tile_y = (y+8) // 8
         floor_y = tile_y * 8
         return floor_y - 8
-
-class TakeItems:
-    def __init__(self):
-        pass
-
-    def check_item(self, player, flower_flame):
-        if flower_flame.take:
-            return
-        if (flower_flame.x < player.x + 8 and flower_flame.x + 8 > player.x
-                and flower_flame.y < player.y + 8 and flower_flame.y + 8 > player.y):
-            player.fireball = True
-            flower_flame.take = True
 
 class Creatif:
     def __init__(self):
@@ -716,6 +758,9 @@ class App:
         enemies.append(Enemy(234*8, 10*8, 100))
         flying_ennemies.append(FlyingEnemy(16*8,7*8,100,self.player))
         flying_ennemies.append(FlyingEnemy(57*8,5*8,100,self.player))
+        for x, y, tile in COINS_DATA:
+            coins.append(Coin(x * 8, y * 8, tile))
+
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -734,8 +779,11 @@ class App:
                 fireball.update()
             for laser in lasers[:]:
                 laser.update()
+            for coin in coins[:]:
+                coin.update()
             self.flower_flame.update()
-        self.take_item.check_item(self.player, self.flower_flame)
+            self.take_item.check_coins(self.player, coins)
+            self.take_item.check_flower_flame(self.player, self.flower_flame)
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
@@ -744,16 +792,19 @@ class App:
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,scroll_y,256,256)
-        pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         self.player.healthbar.update(self.player.x, self.player.y, self.player.max_hp, self.player.hp)
         self.player.draw()
-        for enemy in enemies:
+        pyxel.text(15,10,f"{self.player.coins}",7)
+        pyxel.blt(5,8,0,0,8,8,8,2) #affichage coin
+        for coin in coins[:]:
+            coin.draw()
+        for enemy in enemies[:]:
             enemy.draw()
-        for enemy in flying_ennemies:
+        for enemy in flying_ennemies[:]:
             enemy.draw()
-        for fireball in fireballs:
+        for fireball in fireballs[:]:
             fireball.draw()
-        for laser in lasers:
+        for laser in lasers[:]:
             laser.draw()
         self.flower_flame.draw()
         if self.creatif.active:
