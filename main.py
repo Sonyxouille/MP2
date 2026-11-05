@@ -1,3 +1,4 @@
+import math
 import time
 import pyxel
 
@@ -94,9 +95,15 @@ class Player:
         self.invincible = True
         return time.time()
 
-    def take_damage(self):
+    def take_damage_ennemy(self):
         self.hp -= 10
         self.vy -= self.jump_force
+
+    def take_damage_laser(self):
+        self.hp -= 10
+
+    def take_damage_void(self):
+        self.hp -= 30
 
     def update(self):
         if self.flappy_bird == False:
@@ -106,14 +113,12 @@ class Player:
             if pyxel.btn(pyxel.KEY_LEFT) and self.touch_a_left_wall == False and self.x > 0:
                 self.f = -8
                 self.x -= self.vx
-            if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
+            if pyxel.btnp(pyxel.KEY_UP, 10, 3) and self.is_on_the_ground:
                 self.is_on_the_ground = False
                 self.vy -= self.jump_force
             if pyxel.btnp(pyxel.KEY_E) and self.fireball == True and time.time() - self.time_fireball > 0.5:
                 fireballs.append(Fireball(self.x, self.y, self.f))
                 self.time_fireball = time.time()
-            if pyxel.btnp(pyxel.KEY_A):
-                lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self))
         elif self.flappy_bird == True:
             self.f = 8
             if self.touch_a_right_wall == False:
@@ -148,23 +153,28 @@ class Player:
             self.vy = 0
             self.y += 1
 
-        for enemy in enemies:
+        for enemy in enemies[:]:
             #if self.invincible == False:
                 if enemy.check_collision(self.x, self.y) == True:
                     enemy.take_damage(self.vy)
                     self.vy = -self.jump_force
                 elif enemy.check_collision(self.x, self.y) == False and self.invincible == False:
-                    self.take_damage()
+                    self.take_damage_ennemy()
                     self.time_invincible = self.invincible_timer()
 
-        for enemy in flying_ennemies:
-                    #if self.invincible == False:
-                        if enemy.check_collision(self.x, self.y) == True:
-                            enemy.take_damage(self.vy)
-                            self.vy = -self.jump_force
-                        elif enemy.check_collision(self.x, self.y) == False and self.invincible == False:
-                            self.take_damage()
-                            self.time_invincible = self.invincible_timer()
+        for enemy in flying_ennemies[:]:
+            #if self.invincible == False:
+                if enemy.check_collision(self.x, self.y) == True:
+                    enemy.take_damage(self.vy)
+                    self.vy = -self.jump_force
+                elif enemy.check_collision(self.x, self.y) == False and self.invincible == False:
+                    self.take_damage_ennemy()
+                    self.time_invincible = self.invincible_timer()
+
+        for laser in lasers[:]:
+            if laser.check_collision(self.x, self.y) == True and self.invincible == False:
+                self.take_damage_laser()
+                lasers.remove(laser)
 
         if (time.time() - self.time_invincible) > 0.5:
             self.invincible = False
@@ -181,7 +191,7 @@ class Player:
             self.y = self.spawn_y
 
         if self.y >= (120 + ETAGES[self.etage_actuel][1]):
-                    self.take_damage()
+                    self.take_damage_void()
                     self.vy = 0
                     self.x = self.spawn_x
                     self.y = self.spawn_y
@@ -297,6 +307,7 @@ class FlyingEnemy:
         self.vx = vx
         self.f = 8
         self.hp = hp
+        self.detection_range = 64
         self.max_hp = self.hp
         self.direction = True #False pour gauche, True pour droite
         self.player = player
@@ -316,11 +327,16 @@ class FlyingEnemy:
         return False
 
     def check_collision(self,x,y):
-        if (x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y) and self.hp > 0:
+        if x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y and self.hp > 0:
             if y + 8 <= self.y + 4:
                 return True
             else:
                 return False
+
+    def detect_player(self):
+        if self.player.x < self.x + self.detection_range and self.player.x + 8 > self.x - self.detection_range and self.player.y < self.y + self.detection_range and self.player.y + 8 > self.y - self.detection_range:
+            return True
+        return False
 
     def update(self):
         if self.direction == False:
@@ -335,8 +351,9 @@ class FlyingEnemy:
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
 
-        if (time.time() - self.timer_laser) > 0.1:
-            lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self.player))
+        if (time.time() - self.timer_laser) > 0.1 and self.detect_player() == True:
+            lasers.append(Laser(self.x,self.y,self.player))
+            self.timer_laser = time.time()
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
@@ -407,15 +424,25 @@ class Laser:
         self.player = player
         self.x = x
         self.y = y
-        self.dx = ((self.player.x) - self.x) / 20
-        self.dy = ((self.player.y) - self.y) / 20
-        self.time = time.time()
+        vitesse = 2
+        vx = self.player.x - self.x
+        vy = self.player.y - self.y
+        longueur = math.hypot(vx, vy)
+        if longueur == 0:
+            longueur = 1
+        self.dx = vx / longueur * vitesse
+        self.dy = vy / longueur * vitesse
+
+    def check_collision(self,x,y):
+        if (x < self.x + 2 and x + 8 > self.x and y < self.y + 1 and y + 8 > self.y):
+            return True
+        else:
+            return False
 
     def update(self):
-        if (time.time() - self.time) > 0.1:
-            self.x += self.dx
-            self.y += self.dy
-        if self.physics.is_on_floor(self.x,self.y) == True:
+        self.x += self.dx
+        self.y += self.dy
+        if self.physics.get_tile(int(self.x), int(self.y)) in SOLID_TILE or self.x < 0 or self.x > ETAGES[self.player.etage_actuel][2] or self.y < 0 or self.y > (120 + ETAGES[self.player.etage_actuel][1]):
             lasers.remove(self)
 
     def draw(self):
@@ -674,20 +701,21 @@ class App:
         self.flower_flame = FlowerFlame(440,72)
         self.creatif = Creatif()
         self.take_item = TakeItems()
-        enemies.append(Enemy(112, 112, 100))
-        enemies.append(Enemy(364, 88, 100))
-        enemies.append(Enemy(512, 104, 100))
-        enemies.append(Enemy(856, 104, 100))
-        enemies.append(Enemy(912, 96, 100))
-        enemies.append(Enemy(1168, 64, 100))
-        enemies.append(Enemy(1296, 64, 100))
-        enemies.append(Enemy(1384, 40, 100))
-        enemies.append(Enemy(1536, 56, 100))
-        enemies.append(Enemy(1552, 24, 100))
-        enemies.append(Enemy(1600, 96, 100))
-        enemies.append(Enemy(1840, 8, 100))
-        enemies.append(Enemy(1872, 80, 100))
-        flying_ennemies.append(FlyingEnemy(16,7,100,self.player))
+        enemies.append(Enemy(14*8, 14*8, 100))
+        enemies.append(Enemy(45*8, 11*8, 100))
+        enemies.append(Enemy(64*8, 13*8, 100))
+        enemies.append(Enemy(107*8, 13*8, 100))
+        enemies.append(Enemy(114*8, 12*8, 100))
+        enemies.append(Enemy(146*8, 8*8, 100))
+        enemies.append(Enemy(162*8, 8*8, 100))
+        enemies.append(Enemy(173*8, 5*8, 100))
+        enemies.append(Enemy(192*8, 7*8, 100))
+        enemies.append(Enemy(194*8, 3*8, 100))
+        enemies.append(Enemy(200*8, 12*8, 100))
+        enemies.append(Enemy(230*8, 1*8, 100))
+        enemies.append(Enemy(234*8, 10*8, 100))
+        flying_ennemies.append(FlyingEnemy(16*8,7*8,100,self.player))
+        flying_ennemies.append(FlyingEnemy(57*8,5*8,100,self.player))
         pyxel.run(self.update, self.draw)
 
     def update(self):
