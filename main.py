@@ -113,7 +113,7 @@ class Player:
                 fireballs.append(Fireball(self.x, self.y, self.f))
                 self.time_fireball = time.time()
             if pyxel.btnp(pyxel.KEY_A):
-                lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self.f,self))
+                lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self))
         elif self.flappy_bird == True:
             self.f = 8
             if self.touch_a_right_wall == False:
@@ -291,7 +291,7 @@ class Enemy:
             self.healthbar.draw()
 
 class FlyingEnemy:
-    def __init__(self,x,y,hp,vx=1):
+    def __init__(self,x,y,hp,player,vx=1):
         self.x = x
         self.y = y
         self.vx = vx
@@ -299,6 +299,7 @@ class FlyingEnemy:
         self.hp = hp
         self.max_hp = self.hp
         self.direction = True #False pour gauche, True pour droite
+        self.player = player
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.timer_laser = time.time()
@@ -333,6 +334,9 @@ class FlyingEnemy:
             self.direction = True
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
+
+        if (time.time() - self.timer_laser) > 0.1:
+            lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self.player))
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
@@ -398,22 +402,24 @@ class Fireball:
             pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 64, 96, self.f, 8, 2)
 
 class Laser:
-    def __init__(self,x,y,f,player):
+    def __init__(self,x,y,player):
         self.physics = Physics()
         self.player = player
         self.x = x
         self.y = y
-        self.dx = ((self.player.x - scroll_x) - self.x) / 20
-        self.dy = ((self.player.y - scroll_y) - self.y) / 20
+        self.dx = ((self.player.x) - self.x) / 20
+        self.dy = ((self.player.y) - self.y) / 20
         self.time = time.time()
 
     def update(self):
         if (time.time() - self.time) > 0.1:
             self.x += self.dx
             self.y += self.dy
+        if self.physics.is_on_floor(self.x,self.y) == True:
+            lasers.remove(self)
 
     def draw(self):
-        pyxel.rect(self.x,self.y,2,1,10)
+        pyxel.rect(self.x - scroll_x,self.y - scroll_y,2,1,10)
 
 class HealthBar:
     def __init__(self,x,y,max_hp,current_hp):
@@ -668,7 +674,6 @@ class App:
         self.flower_flame = FlowerFlame(440,72)
         self.creatif = Creatif()
         self.take_item = TakeItems()
-        self.laser = Laser(50, 50, 8,self.player)
         enemies.append(Enemy(112, 112, 100))
         enemies.append(Enemy(364, 88, 100))
         enemies.append(Enemy(512, 104, 100))
@@ -682,8 +687,7 @@ class App:
         enemies.append(Enemy(1600, 96, 100))
         enemies.append(Enemy(1840, 8, 100))
         enemies.append(Enemy(1872, 80, 100))
-        flying_ennemies.append(FlyingEnemy(16,7,100))
-
+        flying_ennemies.append(FlyingEnemy(16,7,100,self.player))
         pyxel.run(self.update, self.draw)
 
     def update(self):
