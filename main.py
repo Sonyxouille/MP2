@@ -41,6 +41,7 @@ TILE_32 = (5,11)
 
 #TILE ITEM
 TILE_PIECE_JAUNE = (2,1)
+TILE_FLOWER_FLAME = [(0,4),(1,4)]
 
 SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TILE_7,
               TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15,
@@ -59,6 +60,7 @@ scroll_x = 0
 SCROLL_BORDER = 64
 
 enemies = []
+flying_ennemies = []
 fireballs = []
 lasers = []
 
@@ -79,11 +81,13 @@ class Player:
         self.spawn_x = ETAGES[self.etage_actuel][3][0]
         self.spawn_y = ETAGES[self.etage_actuel][3][1]
         self.physics = Physics()
+        self.take_item = TakeItems()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.is_on_the_ground = False
         self.touch_a_left_wall = False
         self.touch_a_right_wall = False
         self.invincible = False
+        self.fireball = False
         self.flappy_bird = False
 
     def invincible_timer(self):
@@ -105,9 +109,11 @@ class Player:
             if pyxel.btnp(pyxel.KEY_UP) and self.is_on_the_ground:
                 self.is_on_the_ground = False
                 self.vy -= self.jump_force
-            if pyxel.btnp(pyxel.KEY_E) and time.time() - self.time_fireball > 0.5:
+            if pyxel.btnp(pyxel.KEY_E) and self.fireball == True and time.time() - self.time_fireball > 0.5:
                 fireballs.append(Fireball(self.x, self.y, self.f))
                 self.time_fireball = time.time()
+            if pyxel.btnp(pyxel.KEY_A):
+                lasers.append(Laser(self.x - scroll_x,self.y - scroll_y,self.f,self))
         elif self.flappy_bird == True:
             self.f = 8
             if self.touch_a_right_wall == False:
@@ -150,6 +156,15 @@ class Player:
                 elif enemy.check_collision(self.x, self.y) == False and self.invincible == False:
                     self.take_damage()
                     self.time_invincible = self.invincible_timer()
+
+        for enemy in flying_ennemies:
+                    #if self.invincible == False:
+                        if enemy.check_collision(self.x, self.y) == True:
+                            enemy.take_damage(self.vy)
+                            self.vy = -self.jump_force
+                        elif enemy.check_collision(self.x, self.y) == False and self.invincible == False:
+                            self.take_damage()
+                            self.time_invincible = self.invincible_timer()
 
         if (time.time() - self.time_invincible) > 0.5:
             self.invincible = False
@@ -194,6 +209,27 @@ class Player:
                 pyxel.blt(screen_x, screen_y, 0, 24, 16, self.f, 8, 2)
         if self.hp < self.max_hp:
             self.healthbar.draw()
+
+class FlowerFlame:
+    def __init__(self,x,y) -> None:
+        self.x = x
+        self.y = y
+        self.tile = 0
+        self.take = False
+        self.time = time.time()
+
+    def update(self):
+        if (time.time() - self.time) > 0.5 and self.take == False:
+            self.tile += 1
+            self.tile = self.tile % 2
+            self.time = time.time()
+
+    def draw(self):
+        if self.take == False:
+            if self.tile == 0:
+                pyxel.blt(self.x - scroll_x,self.y - scroll_y,0,0,32,8,8,2)
+            elif self.tile == 1:
+                pyxel.blt(self.x - scroll_x,self.y - scroll_y,0,8,32,8,8,2)
 
 class Enemy:
     def __init__(self,x,y,hp,vx=1):
@@ -265,6 +301,7 @@ class FlyingEnemy:
         self.direction = True #False pour gauche, True pour droite
         self.physics = Physics()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
+        self.timer_laser = time.time()
 
     def take_damage(self,vy):
         if vy < 0:
@@ -296,16 +333,12 @@ class FlyingEnemy:
             self.direction = True
         if self.physics.touch_a_right_wall(self.x, self.y):
             self.direction = False
-        if self.physics.get_tile(self.x-1,self.y+8) == (0,0):
-            self.direction = True
-        if self.physics.get_tile(self.x+8,self.y+8) == (0,0):
-            self.direction = False
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
     def draw(self):
         if self.hp > 0:
-            pyxel.blt(self.x - scroll_x ,self.y - scroll_y,0,0,24,self.f,8,2)
+            pyxel.blt(self.x - scroll_x ,self.y - scroll_y,0,40,104,self.f,8,2)
         if self.hp > 0 and self.hp < self.max_hp:
             self.healthbar.draw()
 
@@ -348,6 +381,12 @@ class Fireball:
                 fireballs.remove(self)
                 return
 
+        for ennemy in flying_ennemies[:]:
+            if ennemy.touches(self.x, self.y):
+                ennemy.take_damage(12)
+                fireballs.remove(self)
+                return
+
     def draw(self):
         if self.stage == 1:
             pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 40, 96, self.f, 8, 2)
@@ -364,39 +403,17 @@ class Laser:
         self.player = player
         self.x = x
         self.y = y
-        self.stage = 1
-        self.f = f
+        self.dx = ((self.player.x - scroll_x) - self.x) / 20
+        self.dy = ((self.player.y - scroll_y) - self.y) / 20
         self.time = time.time()
 
-    def move(self):
-        dx = (self.x - self.player.x) / 20
-        dy = (self.y - self.player.y) / 20
-        self.x -= dx
-        self.y -= dy
-        if self.physics.is_on_floor(self.x+8, self.y):
-            print("Collision avec le sol")
-
     def update(self):
-        if time.time() - self.time > 0.3:
-            self.stage = 4
-            if self.f == 8:
-                self.f = 16
-            elif self.f == -8:
-                self.f = -16
-        elif time.time() - self.time > 0.2:
-            self.stage = 3
-        elif time.time() - self.time > 0.1:
-            self.stage = 2
+        if (time.time() - self.time) > 0.1:
+            self.x += self.dx
+            self.y += self.dy
 
     def draw(self):
-        if self.stage == 1:
-            pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 40, 96, self.f, 8, 2)
-        elif self.stage == 2:
-            pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 48, 96, self.f, 8, 2)
-        elif self.stage == 3:
-            pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 56, 96, self.f, 8, 2)
-        elif self.stage == 4:
-            pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 64, 96, self.f, 8, 2)
+        pyxel.rect(self.x,self.y,2,1,10)
 
 class HealthBar:
     def __init__(self,x,y,max_hp,current_hp):
@@ -467,13 +484,13 @@ class TakeItems:
     def __init__(self):
         pass
 
-    def check_item(self,x,y,player):
-        tile_x = x//8
-        tile_y = y//8
-        if y < 0:
-            tile_y = y//-8
-        if pyxel.tilemaps[0].pget(tile_x,tile_y) == TILE_PIECE_JAUNE:
-            pass
+    def check_item(self, player, flower_flame):
+        if flower_flame.take:
+            return
+        if (flower_flame.x < player.x + 8 and flower_flame.x + 8 > player.x
+                and flower_flame.y < player.y + 8 and flower_flame.y + 8 > player.y):
+            player.fireball = True
+            flower_flame.take = True
 
 class Creatif:
     def __init__(self):
@@ -484,7 +501,7 @@ class Creatif:
         self.page = "menu"
         self.options = ["Modifier le perso", "Placer un ennemi", "Modifier les tiles"]
         self.choix_stat = 0
-        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1), ("flappy_bird", False), ("etage_actuel", 1)]
+        self.stats_perso = [("hp", 10), ("max_hp", 10), ("vx", 1), ("jump_force", 1), ("flappy_bird", False), ("fireball", False), ("etage_actuel", 1)]
         self.choix_stat_ennemi = 0
         self.stats_ennemi = [("hp", 10), ("vx", 1)]
         self.valeurs_ennemi = {"hp": 100, "vx": 1}
@@ -648,6 +665,7 @@ class App:
         pyxel.load("1.pyxres")
         self.map_width = 0
         self.player = Player(50, 50)
+        self.flower_flame = FlowerFlame(440,72)
         self.creatif = Creatif()
         self.take_item = TakeItems()
         self.laser = Laser(50, 50, 8,self.player)
@@ -664,6 +682,8 @@ class App:
         enemies.append(Enemy(1600, 96, 100))
         enemies.append(Enemy(1840, 8, 100))
         enemies.append(Enemy(1872, 80, 100))
+        flying_ennemies.append(FlyingEnemy(16,7,100))
+
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -676,14 +696,14 @@ class App:
             self.player.update()
             for enemy in enemies[:]:
                 enemy.update()
+            for enemy in flying_ennemies[:]:
+                enemy.update()
             for fireball in fireballs[:]:
                 fireball.update()
             for laser in lasers[:]:
                 laser.update()
-        if pyxel.btnp(pyxel.KEY_KP_1):
-            self.laser.move()
-        self.take_item.check_item(self.player.x + 8,self.player.y,self.player)
-        self.take_item.check_item(self.player.x - 1,self.player.y,self.player)
+            self.flower_flame.update()
+        self.take_item.check_item(self.player, self.flower_flame)
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
@@ -692,15 +712,18 @@ class App:
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,scroll_y,256,256)
-        for enemy in enemies:
-            enemy.draw()
         pyxel.text(10,10,f"Player : {self.player.x},{self.player.y}",9)
         self.player.healthbar.update(self.player.x, self.player.y, self.player.max_hp, self.player.hp)
         self.player.draw()
+        for enemy in enemies:
+            enemy.draw()
+        for enemy in flying_ennemies:
+            enemy.draw()
         for fireball in fireballs:
             fireball.draw()
         for laser in lasers:
             laser.draw()
+        self.flower_flame.draw()
         if self.creatif.active:
             if self.creatif.page == "menu":
                 self.creatif.draw_menu()

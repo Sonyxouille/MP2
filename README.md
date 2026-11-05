@@ -108,3 +108,7 @@ Effets sonores (à jouer sur le canal 3) :
 41 : battement d’ailes (Flappy Bird)
 42 : sélection dans le menu
 43 : boss touché
+
+### Ennemi volant coordonées
+16,7
+57,5
