@@ -170,7 +170,7 @@ class Player:
             self.y += 1
 
         for enemy in enemies[:]:
-            #if self.invincible == False:
+            if self.invincible == False:
                 if enemy.check_collision(self.x, self.y) == True:
                     enemy.take_damage(self.vy)
                     self.vy = -self.jump_force
@@ -179,7 +179,7 @@ class Player:
                     self.time_invincible = self.invincible_timer()
 
         for enemy in flying_ennemies[:]:
-            #if self.invincible == False:
+            if self.invincible == False:
                 if enemy.check_collision(self.x, self.y) == True:
                     enemy.take_damage(self.vy)
                     self.vy = -self.jump_force
