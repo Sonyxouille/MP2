@@ -56,7 +56,7 @@ COINS_DATA = [ #x, y, tile
     (234, 10, 2), (235, 1, 3), (235, 13, 3), (236, 13, 3), (239, 7, 3),
     (244, 7, 3), (248, 0, 2), (253, 13, 1)
 ]
-print(len(COINS_DATA))
+# Valeur total des pièces = 144
 
 TILE_FLOWER_FLAME = [(0,4),(1,4)]
 
@@ -66,7 +66,7 @@ SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TIL
               TILE_24, TILE_25, TILE_26, TILE_27, TILE_28, TILE_29, TILE_30, TILE_31,
               TILE_32]
 
-ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 256, 512,(50,352)), ("Grotte Eboulement 1", 384, 512,(50,480)),
+ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 320, 512,(50,416)), ("Grotte Eboulement 1", 384+128, 512,(50,608)),
           ("Grotte Eboulement 2", 512, 512,(50,608)), ("Grotte Eboulement 3", 640, 512,(70,736)), ("Grotte Eboulement 4", 768, 512,(70,848)),
           ("Grotte Eboulement 5", 896, 512,(72,976))] #0 : nom de l'étage, 1 : map_height, 2 : map_width, 3 : (spawn_x, spawn_y)
 
@@ -291,7 +291,7 @@ class TakeItems:
     def check_coins(self, player, coins):
         for coin in coins[:]:
             if (coin.x < player.x + 8 and coin.x + 8 > player.x and coin.y < player.y + 8 and coin.y + 8 > player.y):
-                player.coins += 1
+                player.coins += coin.tile
                 print(player.coins)
                 coins.remove(coin)
 
@@ -361,8 +361,8 @@ class FlyingEnemy:
         self.vx = vx
         self.f = 8
         self.hp = hp
-        self.detection_range = 64
         self.max_hp = self.hp
+        self.detection_range = 64
         self.direction = True #False pour gauche, True pour droite
         self.player = player
         self.physics = Physics()
@@ -408,6 +408,9 @@ class FlyingEnemy:
         if (time.time() - self.timer_laser) > 0.25 and self.detect_player() == True:
             lasers.append(Laser(self.x,self.y,self.player))
             self.timer_laser = time.time()
+
+        if self.hp <= 0:
+            flying_ennemies.remove(self)
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
@@ -784,6 +787,7 @@ class App:
             self.flower_flame.update()
             self.take_item.check_coins(self.player, coins)
             self.take_item.check_flower_flame(self.player, self.flower_flame)
+            print(f"x : {self.player.x}, y : {self.player.y}")
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
