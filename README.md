@@ -69,7 +69,6 @@ Khalamytho (pote du héros/victime)
 - Musique (Menu, Premier étage, Boss) 
 - Son (Clique sur menu, saute, récupère un objet, tombe dans le vide, prendre un dégât, mort
         Attaque boule de feu, Attaque Laser des piafs, Attaque du boss, Vol (Flappy Bird))
-- Refaire grotte en mettant un espace entre chaque étage + faire que les sauts soient possibles
 - Trouver idées easter egg (flappy bird fin, )
 
 ### Sonyxou
