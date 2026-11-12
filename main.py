@@ -931,10 +931,10 @@ class App:
             musique_choisie = 1
         elif self.etat == "mort":
             musique_choisie = None
-        elif self.player.flappy_bird:
-            musique_choisie = 2
         elif self.etat == "fin":
             musique_choisie = 1
+        elif self.player.flappy_bird:
+            musique_choisie = 2
         else:
             musique_choisie = 0
         if musique_choisie != self.musique:
