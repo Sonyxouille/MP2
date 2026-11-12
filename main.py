@@ -197,9 +197,9 @@ class Player:
             self.invincible = False
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
-        if self.hp <= 0:
+        """if self.hp <= 0:
             print("Game Over")  
-            pyxel.quit()    
+            pyxel.quit()  """  
 
         if self.spawn_y != ETAGES[self.etage_actuel][3][1]:
             self.spawn_x = ETAGES[self.etage_actuel][3][0]
@@ -747,14 +747,117 @@ class Creatif:
         pyxel.blt(110, 6, 0, u, v, 8, 8)
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
+class Menu:
+    #Class qui gère un menu vertical (titre + options).
+    def __init__(self, titre, options):
+        self.titre = titre
+        self.options = options
+        self.choix = 0
+    
+    def update(self):
+        #Renvoie l'index de l'option validée, sinon None.
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.choix = (self.choix + 1) % len(self.options)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.choix = (self.choix - 1) % len(self.options)
+        if pyxel.btnp(pyxel.KEY_RETURN):
+            valide = self.choix
+            self.choix = 0
+            return valide
+        return None
+
+    def draw(self):
+        hauteur = 30 + len(self.options) * 12
+        x = 14
+        y = 64 - hauteur // 2
+        pyxel.rect(x, y, 100, hauteur, 0)
+        pyxel.rectb(x, y, 100, hauteur, 10)
+        pyxel.text(64 - len(self.titre) * 2, y + 8, self.titre, 10)
+        for i, texte in enumerate(self.options):
+            couleur = 10 if i == self.choix else 7
+            prefixe = "> " if i == self.choix else "  "
+            pyxel.text(20, y + 22 + i * 12, prefixe + texte, couleur)
+
+class MenuPrincipal:
+    #Menu de lancement
+    def __init__(self):
+        self.titre = "SUPER ZBOOBI"
+        self.options = ["Jouer", "Quitter"]
+        self.choix = 0
+        self.perso_y = 104
+        self.perso_vy = 0
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.choix = (self.choix + 1) % len(self.options)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.choix = (self.choix - 1) % len(self.options)
+
+        if self.perso_y == 104 and pyxel.rndi(0, 90) == 0:
+            self.perso_vy = -4
+
+        self.perso_vy += 0.5
+        self.perso_y += self.perso_vy
+        if self.perso_y >= 104:
+            self.perso_y = 104
+            self.perso_vy = 0
+
+        if pyxel.btnp(pyxel.KEY_RETURN):
+            valide = self.choix
+            self.choix = 0
+            return valide
+
+    def draw(self):
+        pyxel.cls(1)
+
+        pyxel.text(41, 31, self.titre, 0)
+        pyxel.text(40, 30, self.titre, 10)
+
+        for i, texte in enumerate(self.options):
+            if i == self.choix:
+                couleur = 10
+                prefixe = "> "
+            else:
+                couleur = 7
+                prefixe = "  "
+            pyxel.text(32, 70 + i * 12, prefixe + texte, couleur)
+
+        for x in range(0, 128, 8):
+            pyxel.blt(x, 112, 0, 40, 0, 8, 8)
+            pyxel.blt(x, 120, 0, 40, 0, 8, 8)
+
+
+        x = pyxel.frame_count % 150
+        if (pyxel.frame_count // 5) % 2 == 0:
+            pyxel.blt(x, self.perso_y, 0, 0, 16, 8, 8, 2)
+        else:
+            pyxel.blt(x, self.perso_y, 0, 8, 16, 8, 8, 2)
+
+        pyxel.blt(x - 20, 104, 0, 0, 24, 8, 8, 2)
+
 class App:
     #Class qui initialise les visuels et les fonctionnalités du jeu.
     def __init__(self):
         pyxel.init(128, 128, title="SUPER ZBOOBI")
         pyxel.load("1.pyxres")
         self.map_width = 0
+        self.etat = "menu"
+        self.menu_principal = MenuPrincipal()
+        self.menu_pause = Menu("PAUSE", ["Reprendre", "Menu principal"])
+        self.menu_mort = Menu("GAME OVER", ["Rejouer", "Menu principal"])
+        self.reset_game()
+        pyxel.run(self.update, self.draw)
+
+    def reset_game(self):
+        pyxel.load("1.pyxres")
+        enemies.clear()
+        flying_ennemies.clear()
+        fireballs.clear()
+        lasers.clear()
+        coins.clear()
+        self.map_width = 0
         self.player = Player(50, 50)
-        self.flower_flame = FlowerFlame(440,72)
+        self.flower_flame = FlowerFlame(440, 72)
         self.creatif = Creatif()
         self.take_item = TakeItems()
         enemies.append(Enemy(14*8, 14*8, 100))
@@ -775,10 +878,9 @@ class App:
         for x, y, tile in COINS_DATA:
             coins.append(Coin(x * 8, y * 8, tile))
 
-        pyxel.run(self.update, self.draw)
-
-    def update(self):
+    def update_jeu(self):
         global scroll_x, scroll_y
+        
         if pyxel.btnp(pyxel.KEY_F1):
             self.creatif.on_off()
         if self.creatif.active:
@@ -804,7 +906,7 @@ class App:
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
         scroll_y = ETAGES[self.player.etage_actuel][1]
 
-    def draw(self):
+    def draw_jeu(self):
         #Classe qui dessine.
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,scroll_y,256,256)
@@ -832,5 +934,46 @@ class App:
                 self.creatif.draw_perso(self.player)
             elif self.creatif.page == "ennemi":
                 self.creatif.draw_ennemi()
+
+    def update(self):
+        if self.etat == "menu":
+            choix = self.menu_principal.update()
+            if choix == 0:
+                self.reset_game()
+                self.etat = "jeu"
+            elif choix == 1:
+                pyxel.quit()
+        elif self.etat == "pause":
+            choix = self.menu_pause.update()
+            if choix == 0 or pyxel.btnp(pyxel.KEY_P):
+                self.etat = "jeu"
+            elif choix == 1:
+                self.etat = "menu"
+        elif self.etat == "mort":
+            choix = self.menu_mort.update()
+            if choix == 0:
+                self.reset_game()
+                self.etat = "jeu"
+            elif choix == 1:
+                self.etat = "menu"
+        elif self.etat == "jeu":
+            if pyxel.btnp(pyxel.KEY_P):
+                self.etat = "pause"
+                return
+            self.update_jeu()
+            if self.player.hp <= 0:
+                self.etat = "mort"
+
+    def draw(self):
+        if self.etat == "menu":
+            pyxel.cls(1)
+            self.menu_principal.draw()
+            return
+        self.draw_jeu()
+        if self.etat == "pause":
+            self.menu_pause.draw()
+        elif self.etat == "mort":
+            self.menu_mort.draw()
+
 
 App()
