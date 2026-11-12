@@ -15,10 +15,11 @@ Zboubi réussira-t-il à sauver Khalamyto et à échapper à la vengeance de The
 
 ## BUT
 
-Vaincre les ennemis, atteindre le boss de la Grotte et sauver Khalamyto
+Vaincre les ennemis, ramasser le plus de pièces et atteindre la fin du Flappy Bird
 
 ## TOUCHES
 - Flèches directionnelles pour avancer, reculer et sauter (flèche du bas uniquement pour descendre des plateformes)
+- E pour boule de feu (si débloqué)
 - F1 pour entrer ou sortir du mode créatif/dév
   - Tab pour revenir à la sélection des menus
   - Entrée pour choisir le menu
