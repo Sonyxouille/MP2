@@ -40,6 +40,10 @@ TILE_30 = (6,9)
 TILE_31 = (4,11)
 TILE_32 = (5,11)
 
+#TILE FLAPPY BIRD
+TILE_33 = (0,15)
+TILE_34 = (1,15)
+
 #TILE ITEM
 COINS_DATA = [ #x, y, tile
     (14, 8, 1), (16, 14, 1), (18, 4, 2), (24, 10, 2), (25, 4, 3),
@@ -53,8 +57,8 @@ COINS_DATA = [ #x, y, tile
     (180, 7, 2), (182, 2, 2), (186, 0, 2), (187, 3, 2), (190, 10, 2),
     (191, 7, 2), (195, 0, 2), (196, 12, 3), (197, 3, 3), (210, 0, 2),
     (211, 7, 3), (213, 7, 3), (217, 3, 2), (218, 11, 3), (227, 10, 2),
-    (234, 10, 2), (235, 1, 3), (235, 13, 3), (236, 13, 3), (239, 7, 3),
-    (244, 7, 3), (248, 0, 2), (253, 13, 1)
+    (234, 10, 2), (235, 1, 3), (235, 13, 3), (236, 13, 3), (241, 7, 3),
+    (244, 7, 3), (248, 4, 2), (253, 13, 1)
 ]
 # Valeur total des pièces = 144
 
@@ -64,12 +68,13 @@ SOLID_TILE = [TILE_PLATFORM, TILE_1, TILE_2, TILE_3, TILE_4, TILE_5, TILE_6, TIL
               TILE_8, TILE_9, TILE_10, TILE_11, TILE_12, TILE_13, TILE_14, TILE_15,
               TILE_16, TILE_17, TILE_18, TILE_19, TILE_20, TILE_21, TILE_22, TILE_23,
               TILE_24, TILE_25, TILE_26, TILE_27, TILE_28, TILE_29, TILE_30, TILE_31,
-              TILE_32]
+              TILE_32, TILE_33, TILE_34]
 
 ETAGES = [("Map de base", 0, 2040,(50,50)), ("Grotte", 320, 512,(50,416)), ("Grotte Eboulement 1", 384+128, 512,(50,608)),
           ("Grotte Eboulement 2", 512, 512,(50,608)), ("Grotte Eboulement 3", 640, 512,(70,736)), ("Grotte Eboulement 4", 768, 512,(70,848)),
-          ("Grotte Eboulement 5", 896, 512,(72,976))] #0 : nom de l'étage, 1 : map_height, 2 : map_width, 3 : (spawn_x, spawn_y)
+          ("Grotte Eboulement 5", 896, 512,(72,976)), ("Flappy Bird", 1280, 2040,(16, 1376))] #0 : nom de l'étage, 1 : map_height, 2 : map_width, 3 : (spawn_x, spawn_y)
 
+FIN_X = 2008
 scroll_y = 0
 scroll_x = 0
 SCROLL_BORDER = 64
@@ -144,6 +149,11 @@ class Player:
             self.f = 8
             if self.touch_a_right_wall == False:
                 self.x += self.vx
+            else:
+                self.take_damage_void()
+                self.vy = 0
+                self.x = self.spawn_x
+                self.y = self.spawn_y
             if pyxel.btnp(pyxel.KEY_UP):
                 self.vy = -self.jump_force
                 pyxel.play(3, 41)
@@ -209,7 +219,7 @@ class Player:
             self.x = self.spawn_x
             self.y = self.spawn_y
 
-        if self.y >= (120 + ETAGES[self.etage_actuel][1]):
+        if self.y >= (136 + ETAGES[self.etage_actuel][1]):
                     self.take_damage_void()
                     self.vy = 0
                     self.x = self.spawn_x
@@ -529,6 +539,20 @@ class Laser:
 
     def draw(self):
         pyxel.rect(self.x - scroll_x,self.y - scroll_y,2,1,10)
+
+class Portail:
+    #Class qui gère le portail vers le Flappy Bird.
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def touche(self, player):
+        return (self.x < player.x + 8 and self.x + 8 > player.x and
+                self.y < player.y + 8 and self.y + 8 > player.y)
+
+    def draw(self):
+        #Provisoire : remplace par ton sprite avec pyxel.blt
+        pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 16, 32, 8, 8, 2)
 
 class HealthBar:
     #Class qui gère la barre de vie.
@@ -884,9 +908,21 @@ class App:
         self.menu_principal = MenuPrincipal()
         self.menu_pause = Menu("PAUSE", ["Reprendre", "Menu principal"])
         self.menu_mort = Menu("GAME OVER", ["Rejouer", "Menu principal"])
+        self.menu_fin = Menu("VICTOIRE", ["Rejouer", "Menu principal"])
         self.musique = None
         self.reset_game()
         pyxel.run(self.update, self.draw)
+
+    def passer_au_flappy(self):
+        enemies.clear()
+        flying_ennemies.clear()
+        fireballs.clear()
+        lasers.clear()
+        self.player.x = ETAGES[7][3][0]
+        self.player.y = ETAGES[7][3][1]
+        self.player.etage_actuel = 7
+        self.player.flappy_bird = True
+        self.player.vy = 0
 
     def maj_musique(self):
         if self.etat == "pause":
@@ -897,6 +933,8 @@ class App:
             musique_choisie = None
         elif self.player.flappy_bird:
             musique_choisie = 2
+        elif self.etat == "fin":
+            musique_choisie = 1
         else:
             musique_choisie = 0
         if musique_choisie != self.musique:
@@ -915,6 +953,7 @@ class App:
         self.map_width = 0
         self.player = Player(50, 50)
         self.flower_flame = FlowerFlame(440, 72)
+        self.portail = Portail(254*8, 32)
         self.creatif = Creatif()
         self.take_item = TakeItems()
         enemies.append(Enemy(14*8, 14*8, 100))
@@ -1012,6 +1051,13 @@ class App:
                 self.etat = "jeu"
             elif choix == 1:
                 self.etat = "menu"
+        elif self.etat == "fin":
+            choix = self.menu_fin.update()
+            if choix == 0:
+                self.reset_game()
+                self.etat = "jeu"
+            elif choix == 1:
+                self.etat = "menu"
         elif self.etat == "jeu":
             if pyxel.btnp(pyxel.KEY_P):
                 self.etat = "pause"
@@ -1022,6 +1068,10 @@ class App:
                 self.musique = None
                 pyxel.stop()
                 pyxel.play(2, 36)
+            elif self.player.etage_actuel == 0 and self.portail.touche(self.player):
+                self.passer_au_flappy()
+            elif self.player.etage_actuel == 7 and self.player.x >= FIN_X:
+                self.etat = "fin"
         self.maj_musique()
 
     def draw(self):
@@ -1030,10 +1080,13 @@ class App:
             self.menu_principal.draw()
             return
         self.draw_jeu()
+        if self.player.etage_actuel == 0:
+            self.portail.draw()
         if self.etat == "pause":
             self.menu_pause.draw()
         elif self.etat == "mort":
             self.menu_mort.draw()
-
+        elif self.etat == "fin":
+            self.menu_fin.draw()
 
 App()
