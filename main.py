@@ -80,7 +80,8 @@ fireballs = []
 lasers = []
 coins = []
 
-class Player:
+class Player: 
+    #Class avec tous les paramètres du joueur.
     def __init__(self,x,y):
         self.etage_actuel = 0
         self.x = x
@@ -239,7 +240,8 @@ class Player:
         if self.hp < self.max_hp:
             self.healthbar.draw()
 
-class FlowerFlame:
+class FlowerFlame: 
+    #Class qui gère la fleur de feu.
     def __init__(self,x,y) -> None:
         self.x = x
         self.y = y
@@ -261,6 +263,7 @@ class FlowerFlame:
                 pyxel.blt(self.x - scroll_x,self.y - scroll_y,0,8,32,8,8,2)
 
 class Coin:
+    #Class qui gère la money.
     def __init__(self,x,y,tile):
         self.x = x
         self.y = y
@@ -296,6 +299,7 @@ class TakeItems:
                 coins.remove(coin)
 
 class Enemy:
+    #Class qui gère les enemies.
     def __init__(self,x,y,hp,vx=1):
         self.x = x
         self.y = y
@@ -355,6 +359,7 @@ class Enemy:
             self.healthbar.draw()
 
 class FlyingEnemy:
+    #Class qui gère les enemies volant.
     def __init__(self,x,y,hp,player,vx=1):
         self.x = x
         self.y = y
@@ -421,6 +426,7 @@ class FlyingEnemy:
             self.healthbar.draw()
 
 class Fireball:
+    #Class qui gère la boule feu.
     def __init__(self,x,y,f):
         self.physics = Physics()
         self.x = x
@@ -476,6 +482,7 @@ class Fireball:
             pyxel.blt(self.x - scroll_x, self.y - scroll_y, 0, 64, 96, self.f, 8, 2)
 
 class Laser:
+    #Class qui gère l'attaque laser.
     def __init__(self,x,y,player):
         self.physics = Physics()
         self.player = player
@@ -506,6 +513,7 @@ class Laser:
         pyxel.rect(self.x - scroll_x,self.y - scroll_y,2,1,10)
 
 class HealthBar:
+    #Class qui gère la barre de vie.
     def __init__(self,x,y,max_hp,current_hp):
         self.x = x
         self.y = y
@@ -523,6 +531,7 @@ class HealthBar:
         pyxel.rect(self.x - scroll_x, self.y - 2 - scroll_y,(self.current_hp/self.max_hp)*8,1,7)
 
 class Physics:
+    #Class qui gère la physique.
     def __init__(self):
         self.gravity = 0.5
 
@@ -571,6 +580,7 @@ class Physics:
         return floor_y - 8
 
 class Creatif:
+    #Class qui gère le créatif.
     def __init__(self):
         self.physics = Physics()
         self.active = False
@@ -738,6 +748,7 @@ class Creatif:
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
 class App:
+    #Class qui initialise les visuels et les fonctionnalités du jeu.
     def __init__(self):
         pyxel.init(128, 128, title="SUPER ZBOOBI")
         pyxel.load("1.pyxres")
@@ -794,6 +805,7 @@ class App:
         scroll_y = ETAGES[self.player.etage_actuel][1]
 
     def draw(self):
+        #Classe qui dessine.
         pyxel.cls(1)
         pyxel.bltm(0,0,0,scroll_x,scroll_y,256,256)
         self.player.healthbar.update(self.player.x, self.player.y, self.player.max_hp, self.player.hp)
