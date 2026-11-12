@@ -99,7 +99,6 @@ class Player:
         self.spawn_x = ETAGES[self.etage_actuel][3][0]
         self.spawn_y = ETAGES[self.etage_actuel][3][1]
         self.physics = Physics()
-        self.take_item = TakeItems()
         self.healthbar = HealthBar(self.x,self.y,self.max_hp,self.hp)
         self.is_on_the_ground = False
         self.touch_a_left_wall = False
@@ -115,12 +114,15 @@ class Player:
     def take_damage_ennemy(self):
         self.hp -= 10
         self.vy -= self.jump_force
+        pyxel.play(3, 35)
 
     def take_damage_laser(self):
         self.hp -= 10
+        pyxel.play(3, 35)
 
     def take_damage_void(self):
         self.hp -= 30
+        pyxel.play(3, 34)
 
     def update(self):
         if self.flappy_bird == False:
@@ -133,15 +135,18 @@ class Player:
             if pyxel.btnp(pyxel.KEY_UP, 10, 3) and self.is_on_the_ground == True:
                 self.is_on_the_ground = False
                 self.vy -= self.jump_force
+                pyxel.play(3, 32)
             if pyxel.btnp(pyxel.KEY_E) and self.fireball == True and time.time() - self.time_fireball > 0.5:
                 fireballs.append(Fireball(self.x, self.y, self.f))
                 self.time_fireball = time.time()
+                pyxel.play(3, 40)
         elif self.flappy_bird == True:
             self.f = 8
             if self.touch_a_right_wall == False:
                 self.x += self.vx
             if pyxel.btnp(pyxel.KEY_UP):
                 self.vy = -self.jump_force
+                pyxel.play(3, 41)
 
         self.vy += self.physics.gravity
         self.y += self.vy
@@ -197,9 +202,6 @@ class Player:
             self.invincible = False
 
         self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
-        """if self.hp <= 0:
-            print("Game Over")  
-            pyxel.quit()  """  
 
         if self.spawn_y != ETAGES[self.etage_actuel][3][1]:
             self.spawn_x = ETAGES[self.etage_actuel][3][0]
@@ -287,16 +289,17 @@ class TakeItems:
         pass
 
     def check_flower_flame(self, player, flower_flame):
-        if (flower_flame.x < player.x + 8 and flower_flame.x + 8 > player.x and flower_flame.y < player.y + 8 and flower_flame.y + 8 > player.y):
+        if flower_flame.x < player.x + 8 and flower_flame.x + 8 > player.x and flower_flame.y < player.y + 8 and flower_flame.y + 8 > player.y and flower_flame.take == False:
             player.fireball = True
             flower_flame.take = True
+            pyxel.play(3, 33)
 
     def check_coins(self, player, coins):
         for coin in coins[:]:
-            if (coin.x < player.x + 8 and coin.x + 8 > player.x and coin.y < player.y + 8 and coin.y + 8 > player.y):
+            if coin.x < player.x + 8 and coin.x + 8 > player.x and coin.y < player.y + 8 and coin.y + 8 > player.y:
                 player.coins += coin.tile
-                print(player.coins)
                 coins.remove(coin)
+                pyxel.play(3, 33)
 
 class Enemy:
     #Class qui gère les enemies.
@@ -313,10 +316,16 @@ class Enemy:
 
     def take_damage(self,vy):
         if vy < 0:
-            self.hp -= 10 * -vy // 2
+            if (10 * -vy // 2) < 20:
+                self.hp -= 20
+            else:
+                self.hp -= 10 * -vy // 2
             self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
         elif vy > 0:
-            self.hp -= 10 * vy // 2
+            if (10 * vy // 2) < 20:
+                self.hp -= 20
+            else:
+                self.hp -= 10 * vy // 2
             self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
     def touches(self, x, y):
@@ -352,6 +361,7 @@ class Enemy:
 
         if self.hp <= 0:
             enemies.remove(self)
+            pyxel.play(3, 37)
 
     def draw(self):
         pyxel.blt(self.x - scroll_x ,self.y - scroll_y,0,0,24,self.f,8,2)
@@ -376,9 +386,15 @@ class FlyingEnemy:
 
     def take_damage(self,vy):
         if vy < 0:
-            self.hp -= 10 * -vy // 2
+            if (10 * -vy // 2) < 20:
+                self.hp -= 20
+            else:
+                self.hp -= 10 * -vy // 2
         elif vy > 0:
-            self.hp -= 10 * vy // 2
+            if (10 * vy // 2) < 20:
+                self.hp -= 20
+            else:
+                self.hp -= 10 * vy // 2
 
     def touches(self, x, y):
         if self.hp > 0 and x < self.x + 8 and x + 8 > self.x and y < self.y + 8 and y + 8 > self.y:
@@ -414,10 +430,12 @@ class FlyingEnemy:
             lasers.append(Laser(self.x,self.y,self.player))
             self.timer_laser = time.time()
 
+        self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
+        
         if self.hp <= 0:
+            pyxel.play(3, 37)
             flying_ennemies.remove(self)
 
-        self.healthbar.update(self.x,self.y,self.max_hp,self.hp)
 
     def draw(self):
         if self.hp > 0:
@@ -599,10 +617,12 @@ class Creatif:
         self.active = not self.active
         self.page = "menu"
         pyxel.mouse(self.active)
+        pyxel.play(3, 42)
 
     def update(self, player):
         if pyxel.btnp(pyxel.KEY_TAB):
             self.page = "menu"
+            pyxel.play(3, 42)
         if self.page == "menu":
             self.update_menu()
         elif self.page == "tiles":
@@ -615,20 +635,26 @@ class Creatif:
     def update_perso(self, player):
         if pyxel.btnp(pyxel.KEY_DOWN):
             self.choix_stat = (self.choix_stat + 1) % len(self.stats_perso)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_UP):
             self.choix_stat = (self.choix_stat - 1) % len(self.stats_perso)
+            pyxel.play(3, 42)
 
         variable, pas = self.stats_perso[self.choix_stat]
         if type(getattr(player, variable)) == int:
             if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
                 setattr(player, variable, getattr(player, variable) + pas)
+                pyxel.play(3, 42)
             if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
                 setattr(player, variable, max(0, getattr(player, variable) - pas))
+                pyxel.play(3, 42)
         elif type(getattr(player, variable)) == bool:
             if pyxel.btnp(pyxel.KEY_RIGHT):
                 setattr(player, variable, True)
+                pyxel.play(3, 42)
             if pyxel.btnp(pyxel.KEY_LEFT):
                 setattr(player, variable, False)
+                pyxel.play(3, 42)
         player.hp = max(1,min(player.hp, player.max_hp))
         player.max_hp = max(1,player.max_hp)
         player.etage_actuel = min(player.etage_actuel, len(ETAGES) - 1)
@@ -659,19 +685,24 @@ class Creatif:
     def update_ennemi(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
             self.choix_stat_ennemi = (self.choix_stat_ennemi + 1) % len(self.stats_ennemi)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_UP):
             self.choix_stat_ennemi = (self.choix_stat_ennemi - 1) % len(self.stats_ennemi)
+            pyxel.play(3, 42)
 
         variable, pas = self.stats_ennemi[self.choix_stat_ennemi]
         if pyxel.btnp(pyxel.KEY_RIGHT, 10, 3):
             self.valeurs_ennemi[variable] += pas
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_LEFT, 10, 3):
             self.valeurs_ennemi[variable] = max(1, self.valeurs_ennemi[variable] - pas)
+            pyxel.play(3, 42)
 
         pos_x = (pyxel.mouse_x + scroll_x) // 8
         pos_y = (pyxel.mouse_y + scroll_y) // 8
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.physics.get_tile(pos_x * 8, pos_y*8 + 8) in SOLID_TILE:
             enemies.append(Enemy(pos_x * 8, pos_y * 8, self.valeurs_ennemi["hp"], self.valeurs_ennemi["vx"]))
+            pyxel.play(3, 33)
 
     def draw_ennemi(self):
         pos_x = (pyxel.mouse_x + scroll_x) // 8
@@ -690,10 +721,13 @@ class Creatif:
     def update_menu(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
             self.choix_menu = (self.choix_menu + 1) % len(self.options)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_UP):
             self.choix_menu = (self.choix_menu - 1) % len(self.options)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_RETURN):
             self.page = ["perso", "ennemi", "tiles"][self.choix_menu]
+            pyxel.play(3, 42)
 
     def draw_menu(self):
         pyxel.rect(14, 30, 100, 50, 0)
@@ -748,23 +782,24 @@ class Creatif:
         pyxel.text(10, 30, f"Tile : {tile}", 10)
 
 class Menu:
-    #Class qui gère un menu vertical (titre + options).
+    #Class qui gère un menu
     def __init__(self, titre, options):
         self.titre = titre
         self.options = options
         self.choix = 0
     
     def update(self):
-        #Renvoie l'index de l'option validée, sinon None.
         if pyxel.btnp(pyxel.KEY_DOWN):
             self.choix = (self.choix + 1) % len(self.options)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_UP):
             self.choix = (self.choix - 1) % len(self.options)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_RETURN):
+            pyxel.play(3, 42)
             valide = self.choix
             self.choix = 0
             return valide
-        return None
 
     def draw(self):
         hauteur = 30 + len(self.options) * 12
@@ -774,8 +809,12 @@ class Menu:
         pyxel.rectb(x, y, 100, hauteur, 10)
         pyxel.text(64 - len(self.titre) * 2, y + 8, self.titre, 10)
         for i, texte in enumerate(self.options):
-            couleur = 10 if i == self.choix else 7
-            prefixe = "> " if i == self.choix else "  "
+            if i == self.choix:
+                couleur = 10
+                prefixe = "> "
+            else:
+                couleur = 7
+                prefixe = "  "
             pyxel.text(20, y + 22 + i * 12, prefixe + texte, couleur)
 
 class MenuPrincipal:
@@ -790,10 +829,12 @@ class MenuPrincipal:
     def update(self):
         if pyxel.btnp(pyxel.KEY_DOWN):
             self.choix = (self.choix + 1) % len(self.options)
+            pyxel.play(3, 42)
         if pyxel.btnp(pyxel.KEY_UP):
             self.choix = (self.choix - 1) % len(self.options)
+            pyxel.play(3, 42)
 
-        if self.perso_y == 104 and pyxel.rndi(0, 90) == 0:
+        if self.perso_y >= 104 and pyxel.rndi(0, 90) == 0:
             self.perso_vy = -4
 
         self.perso_vy += 0.5
@@ -803,13 +844,12 @@ class MenuPrincipal:
             self.perso_vy = 0
 
         if pyxel.btnp(pyxel.KEY_RETURN):
+            pyxel.play(3, 42)
             valide = self.choix
             self.choix = 0
             return valide
 
     def draw(self):
-        pyxel.cls(1)
-
         pyxel.text(41, 31, self.titre, 0)
         pyxel.text(40, 30, self.titre, 10)
 
@@ -827,7 +867,7 @@ class MenuPrincipal:
             pyxel.blt(x, 120, 0, 40, 0, 8, 8)
 
 
-        x = pyxel.frame_count % 150
+        x = pyxel.frame_count % 170 - 10 # -10 pour que le perso et l'ennemi spawn un peu plus à gauche de l'écran
         if (pyxel.frame_count // 5) % 2 == 0:
             pyxel.blt(x, self.perso_y, 0, 0, 16, 8, 8, 2)
         else:
@@ -839,14 +879,30 @@ class App:
     #Class qui initialise les visuels et les fonctionnalités du jeu.
     def __init__(self):
         pyxel.init(128, 128, title="SUPER ZBOOBI")
-        pyxel.load("1.pyxres")
         self.map_width = 0
         self.etat = "menu"
         self.menu_principal = MenuPrincipal()
         self.menu_pause = Menu("PAUSE", ["Reprendre", "Menu principal"])
         self.menu_mort = Menu("GAME OVER", ["Rejouer", "Menu principal"])
+        self.musique = None
         self.reset_game()
         pyxel.run(self.update, self.draw)
+
+    def maj_musique(self):
+        if self.etat == "pause":
+            return
+        if self.etat == "menu":
+            musique_choisie = 1
+        elif self.etat == "mort":
+            musique_choisie = None
+        elif self.player.flappy_bird:
+            musique_choisie = 2
+        else:
+            musique_choisie = 0
+        if musique_choisie != self.musique:
+            self.musique = musique_choisie
+            if musique_choisie is not None:
+                pyxel.playm(musique_choisie, loop=True)
 
     def reset_game(self):
         pyxel.load("1.pyxres")
@@ -855,6 +911,7 @@ class App:
         fireballs.clear()
         lasers.clear()
         coins.clear()
+        pyxel.mouse(False)
         self.map_width = 0
         self.player = Player(50, 50)
         self.flower_flame = FlowerFlame(440, 72)
@@ -900,7 +957,6 @@ class App:
             self.flower_flame.update()
             self.take_item.check_coins(self.player, coins)
             self.take_item.check_flower_flame(self.player, self.flower_flame)
-            print(f"x : {self.player.x}, y : {self.player.y}")
         self.map_width = ETAGES[self.player.etage_actuel][2]
         scroll_x = self.player.x - SCROLL_BORDER
         scroll_x = max(0, min(scroll_x,self.map_width - 128))
@@ -963,6 +1019,10 @@ class App:
             self.update_jeu()
             if self.player.hp <= 0:
                 self.etat = "mort"
+                self.musique = None
+                pyxel.stop()
+                pyxel.play(2, 36)
+        self.maj_musique()
 
     def draw(self):
         if self.etat == "menu":

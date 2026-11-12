@@ -106,9 +106,9 @@ Effets sonores (à jouer sur le canal 3) :
 43 : boss touché
 
 ### Music
-0 : jeu
-1 : menu
-2 : flappy bird
+Canal 0 : jeu
+Canal 1 : menu
+Canal 2 : flappy bird
 
 ### Ennemi volant coordonées
 16,7
