@@ -33,7 +33,7 @@ Vaincre les ennemis, ramasser le plus de pièces et atteindre la fin du Flappy B
     - Clic gauche pour poser l'ennemi avec les valeurs choisis
   - Menu Tile :
     - Flèches directionnelles pour monter, descendre, avancer, reculer
-    - + et - au clavier ou au pavé numérique pour augmenter et diminuer la vitesse du fly
+    - Au clavier ou au pavé numérique + et - pour augmenter et diminuer la vitesse du fly
     - Molette de la sourie pour changer la tile séléctionnée
     - Clic gauche pour placer la tile à l'endroit voulu
     - Clic droit pour placer une tile vide à l'endroit voulu
